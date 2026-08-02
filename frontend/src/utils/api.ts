@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api` : "http://localhost:5000/api";
 
 // Simple cookie parser (zero dependencies)
 const getCookie = (name: string) => {
