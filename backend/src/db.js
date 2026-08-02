@@ -8,7 +8,7 @@ const initDB = async () => {
     console.log("MongoDB connected successfully.");
   } catch (error) {
     console.error("MongoDB connection failed:", error);
-    process.exit(1);
+    // Removed process.exit(1) because Serverless Functions shouldn't be killed manually.
   }
 };
 
