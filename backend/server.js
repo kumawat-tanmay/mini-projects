@@ -46,9 +46,15 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
 });
 
-// Initialize DB and start server
-initDB().then(() => {
+// Initialize DB globally for Vercel Serverless caching
+initDB().catch(console.error);
+
+// Start server locally (Vercel will ignore this and use the exported app)
+if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`Backend server running on http://localhost:${PORT}`);
   });
-});
+}
+
+// Export the app for Vercel Serverless
+module.exports = app;
