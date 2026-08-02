@@ -41,6 +41,11 @@ app.use('/api', (req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/sticky-notes', stickyNotesRoutes);
 
+// Root route to prevent 'Cannot GET /'
+app.get('/', (req, res) => {
+  res.json({ message: 'Mini-Projects API is running.', docs: '/health' });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
