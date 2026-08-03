@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/ThemeProvider";
 import { Sun, Moon, User, LogOut, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -95,8 +95,8 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
           </button>
 
           {/* Dropdown Menu (visible on hover) */}
-          <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-900 border-4 border-black dark:border-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            <div className="px-4 py-3 border-b-4 border-black dark:border-white">
+          <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-900 border-4 border-black dark:border-neutral-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div className="px-4 py-3 border-b-4 border-black dark:border-neutral-700">
               <p className="font-black text-sm text-black dark:text-white truncate">
                 {userProfile ? userProfile.name : 'Loading...'}
               </p>
@@ -117,8 +117,8 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
           onClick={handleLogout}
           className="relative group ml-2"
         >
-          <div className="absolute inset-0 bg-black dark:bg-white translate-y-1 translate-x-1 group-hover:translate-y-0.5 group-hover:translate-x-0.5 transition-transform duration-200"></div>
-          <div className="relative bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white px-4 py-2 flex items-center gap-2 transition-transform duration-200 hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
+          <div className="absolute inset-0 bg-black dark:bg-neutral-700 translate-y-1 translate-x-1 group-hover:translate-y-0.5 group-hover:translate-x-0.5 transition-transform duration-200"></div>
+          <div className="relative bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-neutral-700 px-4 py-2 flex items-center gap-2 transition-transform duration-200 hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
             <LogOut size={16} strokeWidth={2.5} />
             <span className="font-black uppercase tracking-widest text-xs">Logout</span>
           </div>

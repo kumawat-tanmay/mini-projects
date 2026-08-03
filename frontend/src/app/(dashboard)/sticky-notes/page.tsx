@@ -7,7 +7,7 @@ import { useNotes } from '@/features/sticky-notes/useNotes';
 import NotesToolbar from '@/features/sticky-notes/components/NotesToolbar';
 import NotesBoard from '@/features/sticky-notes/components/NotesBoard';
 import EmptyState from '@/features/sticky-notes/components/EmptyState';
-import DeleteAllModal from '@/features/sticky-notes/components/DeleteAllModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 gsap.registerPlugin(useGSAP);
 
@@ -21,8 +21,6 @@ export default function StickyNotesPage() {
     setSort,
     filter,
     setFilter,
-    dateFilter,
-    setDateFilter,
     addNote,
     editNote,
     togglePin,
@@ -54,8 +52,6 @@ export default function StickyNotesPage() {
         onSortChange={setSort}
         filter={filter}
         onFilterChange={setFilter}
-        dateFilter={dateFilter}
-        onDateFilterChange={setDateFilter}
         onCreateNote={handleCreateNote}
         onDeleteAll={() => setShowDeleteModal(true)}
       />
@@ -63,7 +59,7 @@ export default function StickyNotesPage() {
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-20">
-          <div className="w-12 h-12 border-4 border-black dark:border-white border-t-transparent animate-spin" />
+          <div className="w-12 h-12 border-4 border-black dark:border-neutral-700 border-t-transparent animate-spin" />
         </div>
       )}
 
@@ -84,10 +80,16 @@ export default function StickyNotesPage() {
         />
       )}
 
-      {/* Delete All Modal */}
       {showDeleteModal && (
-        <DeleteAllModal
-          noteCount={notes.length}
+        <ConfirmModal
+          title="Delete All Notes"
+          description={
+            <>
+              This will permanently delete <span className="text-red-500 font-black">{notes.length}</span> note{notes.length !== 1 ? 's' : ''}. 
+              This action cannot be undone.
+            </>
+          }
+          confirmText="Delete All"
           onConfirm={handleDeleteAll}
           onCancel={() => setShowDeleteModal(false)}
         />

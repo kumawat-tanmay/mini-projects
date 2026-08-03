@@ -204,8 +204,8 @@ const NoteCard = ({
           />
         ) : (
           <div
-            onClick={() => setIsEditingTitle(true)}
-            className={`font-black text-base border-b-2 border-current/30 pb-2 mb-2 cursor-text min-h-[32px] flex items-end ${
+            onClick={() => !note.isCompleted && setIsEditingTitle(true)}
+            className={`font-black text-base border-b-2 border-current/30 pb-2 mb-2 ${!note.isCompleted ? 'cursor-text' : 'cursor-default'} min-h-[32px] flex items-end ${
               note.isCompleted ? 'line-through' : ''
             } ${!title ? 'opacity-40' : ''}`}
           >
@@ -235,10 +235,11 @@ const NoteCard = ({
           ) : (
             <div
               onClick={() => {
+                if (note.isCompleted) return;
                 setIsEditingContent(true);
                 setTimeout(() => contentRef.current?.focus(), 50);
               }}
-              className={`text-sm leading-relaxed cursor-text whitespace-pre-wrap h-full ${
+              className={`text-sm leading-relaxed ${!note.isCompleted ? 'cursor-text' : 'cursor-default'} whitespace-pre-wrap h-full ${
                 note.isCompleted ? 'line-through' : ''
               } ${!content ? 'opacity-40' : ''}`}
             >

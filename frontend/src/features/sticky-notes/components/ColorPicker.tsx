@@ -35,7 +35,7 @@ export default function ColorPicker({ currentColor, onColorChange, label = 'Colo
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full right-0 mb-2 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-xl border border-black/10 dark:border-white/10 flex gap-2 z-50">
+        <div className="absolute bottom-full right-0 mb-2 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-xl border border-black/10 dark:border-neutral-700/10 flex gap-2 z-50">
           {NOTE_COLORS.map((c) => (
             <button
               key={c}
@@ -44,7 +44,7 @@ export default function ColorPicker({ currentColor, onColorChange, label = 'Colo
                 setIsOpen(false);
               }}
               className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
-                currentColor === c ? 'border-black dark:border-white scale-110' : 'border-black/20 dark:border-white/20'
+                currentColor === c ? 'border-black dark:border-neutral-700 scale-110' : 'border-black/20 dark:border-neutral-700/20'
               }`}
               style={{ backgroundColor: c }}
               title={c}

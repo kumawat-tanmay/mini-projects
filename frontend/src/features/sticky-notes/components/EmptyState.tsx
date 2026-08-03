@@ -31,8 +31,8 @@ export default function EmptyState({ onCreateNote }: EmptyStateProps) {
         onClick={onCreateNote}
         className="group relative"
       >
-        <div className="absolute inset-0 bg-black dark:bg-white translate-y-1 translate-x-1 group-hover:translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
-        <div className="relative bg-yellow-400 border-4 border-black dark:border-white px-8 py-4 flex items-center gap-3 font-black uppercase tracking-widest text-black transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
+        <div className="absolute inset-0 bg-black dark:bg-neutral-700 translate-y-1 translate-x-1 group-hover:translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+        <div className="relative bg-yellow-400 border-4 border-black dark:border-neutral-700 px-8 py-4 flex items-center gap-3 font-black uppercase tracking-widest text-black transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
           <Plus size={20} strokeWidth={3} />
           Create First Note
         </div>

@@ -3,11 +3,9 @@ import type { StickyNote, NoteStats, SortOption, FilterOption } from './types';
 
 export const fetchNotes = async (
   sort: SortOption = 'newest',
-  filter: FilterOption = 'all',
-  date?: string
+  filter: FilterOption = 'all'
 ): Promise<StickyNote[]> => {
   const params = new URLSearchParams({ sort, filter });
-  if (date) params.append('date', date);
   const data = await apiFetch(`/sticky-notes?${params.toString()}`);
   return data.notes;
 };

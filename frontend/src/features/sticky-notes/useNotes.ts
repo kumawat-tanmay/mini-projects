@@ -8,20 +8,20 @@ export function useNotes() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortOption>('newest');
   const [filter, setFilter] = useState<FilterOption>('all');
-  const [dateFilter, setDateFilter] = useState<string>('');
+
 
   // Fetch notes from server
   const loadNotes = useCallback(async () => {
     try {
       setLoading(true);
-      const fetched = await api.fetchNotes(sort, filter, dateFilter || undefined);
+      const fetched = await api.fetchNotes(sort, filter);
       setNotes(fetched);
     } catch (err: any) {
       toast.error(err.message || 'Failed to load notes');
     } finally {
       setLoading(false);
     }
-  }, [sort, filter, dateFilter]);
+  }, [sort, filter]);
 
   useEffect(() => {
     loadNotes();
@@ -145,8 +145,6 @@ export function useNotes() {
     setSort,
     filter,
     setFilter,
-    dateFilter,
-    setDateFilter,
     addNote,
     editNote,
     togglePin,

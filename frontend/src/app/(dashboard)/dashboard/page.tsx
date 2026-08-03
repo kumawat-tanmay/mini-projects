@@ -42,17 +42,17 @@ export default function DashboardPage() {
       
       {/* Quick Stats / Overview Widget */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 gsap-animate">
-        <div className="p-6 border-4 border-black dark:border-white bg-yellow-400 transition-colors duration-300">
+        <div className="p-6 border-4 border-black dark:border-neutral-700 bg-yellow-400 transition-colors duration-300">
           <h3 className="text-sm font-black uppercase tracking-widest text-black mb-2">Sticky Notes</h3>
           <p className="text-4xl font-black text-black">{noteStats.total}</p>
           <p className="text-sm font-bold text-slate-800 mt-1">{noteStats.total - noteStats.completed} active · {noteStats.pinned} pinned</p>
         </div>
-        <div className="p-6 border-4 border-black dark:border-white bg-red-500 transition-colors duration-300">
+        <div className="p-6 border-4 border-black dark:border-neutral-700 bg-red-500 transition-colors duration-300">
           <h3 className="text-sm font-black uppercase tracking-widest text-black mb-2">Store Prompts</h3>
           <p className="text-4xl font-black text-black">0</p>
           <p className="text-sm font-bold text-slate-900 mt-1">Saved prompts</p>
         </div>
-        <div className="p-6 border-4 border-black dark:border-white bg-emerald-500 transition-colors duration-300 flex flex-col justify-between">
+        <div className="p-6 border-4 border-black dark:border-neutral-700 bg-emerald-500 transition-colors duration-300 flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-black uppercase tracking-widest text-black mb-2">System Status</h3>
             <p className="text-xl font-black text-emerald-950">Online & Ready</p>
@@ -62,15 +62,15 @@ export default function DashboardPage() {
 
       {/* Quick Launch Cards */}
       <section>
-        <h2 className="text-2xl font-black uppercase tracking-widest border-b-4 border-black dark:border-white pb-4 mb-8 text-black dark:text-white transition-colors duration-300 gsap-animate">
+        <h2 className="text-2xl font-black uppercase tracking-widest border-b-4 border-black dark:border-neutral-700 pb-4 mb-8 text-black dark:text-white transition-colors duration-300 gsap-animate">
           Launchpad
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           <Link href="/sticky-notes" className="group relative block gsap-animate">
-            <div className="absolute inset-0 bg-black dark:bg-white translate-y-2 translate-x-2 group-hover:translate-y-1 group-hover:translate-x-1 transition-transform duration-200"></div>
-            <div className="relative bg-yellow-400 border-4 border-black dark:border-white p-8 transition-transform duration-200 hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 h-full flex flex-col">
+            <div className="absolute inset-0 bg-black dark:bg-neutral-700 translate-y-2 translate-x-2 group-hover:translate-y-1 group-hover:translate-x-1 transition-transform duration-200"></div>
+            <div className="relative bg-yellow-400 border-4 border-black dark:border-neutral-700 p-8 transition-transform duration-200 hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 h-full flex flex-col">
               <div className="flex-1">
                 <h3 className="text-3xl font-black uppercase tracking-tighter text-black mb-4">Sticky Notes</h3>
                 <p className="text-lg font-bold text-slate-800">Capture your thoughts instantly. Organize your ideas on an infinite canvas.</p>
@@ -82,8 +82,8 @@ export default function DashboardPage() {
           </Link>
 
           <Link href="/store-prompts" className="group relative block gsap-animate">
-            <div className="absolute inset-0 bg-black dark:bg-white translate-y-2 translate-x-2 group-hover:translate-y-1 group-hover:translate-x-1 transition-transform duration-200"></div>
-            <div className="relative bg-red-500 border-4 border-black dark:border-white p-8 transition-transform duration-200 hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 h-full flex flex-col">
+            <div className="absolute inset-0 bg-black dark:bg-neutral-700 translate-y-2 translate-x-2 group-hover:translate-y-1 group-hover:translate-x-1 transition-transform duration-200"></div>
+            <div className="relative bg-red-500 border-4 border-black dark:border-neutral-700 p-8 transition-transform duration-200 hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 h-full flex flex-col">
               <div className="flex-1">
                 <h3 className="text-3xl font-black uppercase tracking-tighter text-black mb-4">Store Prompts</h3>
                 <p className="text-lg font-bold text-slate-900">Your personal library of AI prompts. Save, organize, and reuse your best queries.</p>

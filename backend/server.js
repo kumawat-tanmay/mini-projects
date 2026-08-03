@@ -4,6 +4,7 @@ const cors = require('cors');
 const { initDB } = require('./src/db');
 const authRoutes = require('./src/routes/auth');
 const stickyNotesRoutes = require('./src/modules/sticky-notes/routes');
+const promptStoreRoutes = require('./src/modules/prompt-store/routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,6 +41,7 @@ app.use('/api', (req, res, next) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/sticky-notes', stickyNotesRoutes);
+app.use('/api/prompt-store', promptStoreRoutes);
 
 // Root route to prevent 'Cannot GET /'
 app.get('/', (req, res) => {
