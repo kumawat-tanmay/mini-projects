@@ -11,25 +11,14 @@ const dashboardRoutes = require('./src/modules/dashboard/routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Dynamic CORS configuration to support Vercel preview domains and production
+// Dynamic CORS configuration to support ALL Vercel preview domains and localhost instantly
 app.use(cors({ 
-  origin: function (origin, callback) {
-    if (
-      !origin || 
-      origin.startsWith('http://localhost') || 
-      origin.endsWith('.vercel.app') || 
-      origin === process.env.FRONTEND_URL
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }, 
+  origin: (origin, callback) => callback(null, origin || true),
   credentials: true 
 }));
 app.use(express.json());
 
-// Native Security Headers (ponytail: zero-dependency helmet alternative)
+// Native Security Headers
 app.use((req, res, next) => {
   res.setHeader('X-DNS-Prefetch-Control', 'off');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -37,6 +26,10 @@ app.use((req, res, next) => {
   res.setHeader('X-Download-Options', 'noopen');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  // CRITICAL FIX FOR GOOGLE OAUTH POSTMESSAGE POPUP
+  res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
 });
 
