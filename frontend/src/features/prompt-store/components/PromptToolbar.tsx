@@ -36,7 +36,7 @@ export default function PromptToolbar({
           Prompt Store
         </h1>
         <div className="px-3 py-1 bg-black text-white font-black text-sm uppercase tracking-widest border-2 border-black hidden sm:block">
-          {promptCount} Prompts
+          {promptCount} / 30 Prompts
         </div>
       </div>
 

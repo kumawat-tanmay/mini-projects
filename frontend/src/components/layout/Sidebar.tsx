@@ -10,7 +10,8 @@ import {
   Sparkles, 
   Trello, 
   CalendarDays, 
-  Timer 
+  Timer,
+  Database
 } from "lucide-react";
 
 export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
@@ -21,6 +22,7 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Sticky Notes", href: "/sticky-notes", icon: StickyNote },
     { name: "Prompt Store", href: "/prompt-store", icon: Sparkles },
+    { name: "Asset Vault", href: "/asset-vault", icon: Database },
   ];
 
 

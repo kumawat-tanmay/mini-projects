@@ -15,9 +15,16 @@ const getAllPrompts = async (req, res) => {
 // POST /api/prompt-store — Create a new prompt
 const createPrompt = async (req, res) => {
   try {
+    const userId = req.user.id;
+    const count = await Prompt.countDocuments({ userId });
+    
+    if (count >= 30) {
+      return res.status(403).json({ error: 'Limit is completed, cant add more' });
+    }
+
     const { title, content, tags } = req.body;
     const prompt = new Prompt({
-      userId: req.user.id,
+      userId,
       title: title || '',
       content: content || '',
       tags: tags || [],

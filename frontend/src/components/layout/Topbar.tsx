@@ -42,30 +42,38 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
   const getPageTitle = () => {
     if (pathname === "/dashboard") return "Dashboard";
     if (pathname === "/sticky-notes") return "Sticky Notes";
-    if (pathname === "/store-prompts") return "Store Prompts";
+    if (pathname === "/prompt-store") return "Prompt Store";
+    if (pathname === "/asset-vault") return "Asset Vault";
     return "Productivity Hub";
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-40 flex items-center justify-between px-6 transition-colors duration-300">
+    <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-40 flex items-center justify-between transition-colors duration-300">
       
       {/* Left side: Logo / Brand & Page Title */}
-      <div className="flex items-center gap-4">
-        <button 
-          onClick={toggleSidebar} 
-          className="p-2 -ml-2 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-          aria-label="Toggle Sidebar"
-        >
-          <Menu size={24} strokeWidth={2.5} />
-        </button>
-        <div className="w-8 h-8 bg-black dark:bg-white transition-colors duration-300"></div>
-        <h1 className="text-xl font-black uppercase tracking-widest text-black dark:text-white transition-colors duration-300">
-          {getPageTitle()}
-        </h1>
+      <div className="flex items-center h-full">
+        <div className="flex items-center gap-4 w-64 px-6 h-full border-r border-slate-200 dark:border-slate-800 shrink-0">
+          <button 
+            onClick={toggleSidebar} 
+            className="p-1 -ml-1 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+            aria-label="Toggle Sidebar"
+          >
+            <Menu size={24} strokeWidth={2.5} />
+          </button>
+          <span className="font-black uppercase tracking-widest text-black dark:text-white text-lg leading-none">
+            NexTool
+          </span>
+        </div>
+        
+        <div className="px-6 flex items-center h-full">
+          <h1 className="text-xl font-black uppercase tracking-widest text-black dark:text-white transition-colors duration-300">
+            {getPageTitle()}
+          </h1>
+        </div>
       </div>
 
       {/* Right side: Time, Theme, Profile, Logout */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 px-6 h-full">
         
         {/* Time Widget */}
         {mounted && (

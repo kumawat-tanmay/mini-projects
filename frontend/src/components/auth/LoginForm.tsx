@@ -55,18 +55,34 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
       }
     };
 
+    let intervalId: NodeJS.Timeout;
+
+    const checkAndInitGoogle = () => {
+      if ((window as any).google) {
+        if (intervalId) clearInterval(intervalId);
+        initGoogle();
+      }
+    };
+
     if (document.getElementById('gsi-script')) {
-      // Script already loaded, wait a tick for google to be available if it's still loading
-      setTimeout(initGoogle, 100);
+      if ((window as any).google) {
+        initGoogle();
+      } else {
+        intervalId = setInterval(checkAndInitGoogle, 100);
+      }
     } else {
       const script = document.createElement('script');
       script.id = 'gsi-script';
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
-      script.onload = initGoogle;
+      script.onload = checkAndInitGoogle;
       document.body.appendChild(script);
     }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
