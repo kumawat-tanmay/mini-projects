@@ -11,8 +11,22 @@ const dashboardRoutes = require('./src/modules/dashboard/routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+// Dynamic CORS configuration to support Vercel preview domains and production
+app.use(cors({ 
+  origin: function (origin, callback) {
+    if (
+      !origin || 
+      origin.startsWith('http://localhost') || 
+      origin.endsWith('.vercel.app') || 
+      origin === process.env.FRONTEND_URL
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }, 
+  credentials: true 
+}));
 app.use(express.json());
 
 // Native Security Headers (ponytail: zero-dependency helmet alternative)
