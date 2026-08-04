@@ -59,6 +59,12 @@ const uploadAsset = async (req, res) => {
             }
           }
         );
+
+        // CRITICAL FIX: Catch stream errors to prevent Node.js from crashing (Uncaught Exception)
+        cld_upload_stream.on('error', (error) => {
+          reject(error);
+        });
+
         streamifier.createReadStream(buffer).pipe(cld_upload_stream);
       });
     };
