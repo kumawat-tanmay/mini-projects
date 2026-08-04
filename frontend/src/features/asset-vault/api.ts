@@ -54,3 +54,9 @@ export const deleteAsset = async (id: string): Promise<void> => {
     method: 'DELETE',
   });
 };
+
+export const deleteAllAssets = async (): Promise<void> => {
+  await apiFetch('/assets/all', {
+    method: 'DELETE',
+  });
+};

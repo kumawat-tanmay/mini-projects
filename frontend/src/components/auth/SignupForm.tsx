@@ -30,7 +30,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Google signup failed');
 
-      localStorage.setItem('token', data.token);
+      setToken(data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       window.dispatchEvent(new Event('auth-change'));
       router.push('/dashboard');

@@ -1,16 +1,25 @@
 "use client";
 
-import React from 'react';
-import { Database, Image as ImageIcon, ClipboardPaste } from 'lucide-react';
+import React, { useState } from 'react';
+import { Database, Image as ImageIcon, ClipboardPaste, Trash2 } from 'lucide-react';
 import UploadZone from './UploadZone';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface AssetToolbarProps {
   assetCount: number;
   onUpload: (file: File) => Promise<any>;
   isUploading: boolean;
+  onDeleteAll: () => Promise<void>;
 }
 
-export default function AssetToolbar({ assetCount, onUpload, isUploading }: AssetToolbarProps) {
+export default function AssetToolbar({ assetCount, onUpload, isUploading, onDeleteAll }: AssetToolbarProps) {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleDeleteAll = async () => {
+    await onDeleteAll();
+    setIsDeleteModalOpen(false);
+  };
+
   return (
     <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 p-4 bg-yellow-200 border-4 border-black transition-colors duration-300 text-black">
       <div className="flex items-center gap-3">
@@ -30,6 +39,16 @@ export default function AssetToolbar({ assetCount, onUpload, isUploading }: Asse
             </span>
           </div>
         </div>
+        
+        {assetCount > 0 && (
+          <button 
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="ml-auto sm:ml-4 p-2 bg-white border-2 border-black hover:bg-red-500 hover:text-white transition-colors group cursor-pointer"
+            title="Delete All Assets"
+          >
+            <Trash2 size={24} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-6">
@@ -47,6 +66,21 @@ export default function AssetToolbar({ assetCount, onUpload, isUploading }: Asse
         
         <UploadZone onUpload={onUpload} isUploading={isUploading} />
       </div>
+
+      {isDeleteModalOpen && (
+        <ConfirmModal
+          title="Delete All Assets"
+          description={
+            <div className="space-y-2 text-lg">
+              <p>Are you absolutely sure you want to permanently delete <strong>all {assetCount} assets</strong>?</p>
+              <p className="text-red-600 font-bold">This action cannot be undone and will erase all data.</p>
+            </div>
+          }
+          confirmText="Delete All"
+          onConfirm={handleDeleteAll}
+          onCancel={() => setIsDeleteModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

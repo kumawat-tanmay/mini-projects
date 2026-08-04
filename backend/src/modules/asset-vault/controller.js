@@ -112,8 +112,38 @@ const deleteAsset = async (req, res) => {
   }
 };
 
+// DELETE /api/assets/all — Delete all assets for logged-in user
+const deleteAllAssets = async (req, res) => {
+  try {
+    const assets = await Asset.find({ userId: req.user.id });
+    if (assets.length === 0) {
+      return res.json({ message: 'No assets to delete' });
+    }
+
+    // Delete from Cloudinary in parallel
+    const deletePromises = assets.map(asset => {
+      const resourceType = ['pdf', 'zip', 'raw'].includes(asset.format) ? 'raw' : 'image';
+      return cloudinary.uploader.destroy(asset.publicId, { resource_type: resourceType }).catch(err => {
+        console.error(`Failed to delete asset ${asset.publicId} from Cloudinary:`, err);
+        // We continue even if one fails
+      });
+    });
+
+    await Promise.all(deletePromises);
+
+    // Delete all from DB
+    await Asset.deleteMany({ userId: req.user.id });
+
+    res.json({ message: 'All assets deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting all assets:', error);
+    res.status(500).json({ error: 'Failed to delete all assets' });
+  }
+};
+
 module.exports = {
   getAllAssets,
   uploadAsset,
-  deleteAsset
+  deleteAsset,
+  deleteAllAssets
 };

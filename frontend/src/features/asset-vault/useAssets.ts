@@ -54,12 +54,26 @@ export const useAssets = () => {
     }
   }, [loadAssets]);
 
+  // Delete All
+  const removeAllAssets = useCallback(async () => {
+    // Optimistic
+    setAssets([]);
+    try {
+      await api.deleteAllAssets();
+      toast.success('All assets deleted!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete all assets');
+      loadAssets(); // rollback
+    }
+  }, [loadAssets]);
+
   return {
     assets,
     loading,
     uploading,
     uploadAsset,
     removeAsset,
+    removeAllAssets,
     refreshAssets: loadAssets,
   };
 };

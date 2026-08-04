@@ -12,7 +12,7 @@ import ConfirmModal from '@/components/ui/ConfirmModal';
 gsap.registerPlugin(useGSAP);
 
 export default function AssetVaultPage() {
-  const { assets, loading, uploading, uploadAsset, removeAsset } = useAssets();
+  const { assets, loading, uploading, uploadAsset, removeAsset, removeAllAssets } = useAssets();
   const [assetToDelete, setAssetToDelete] = useState<string | null>(null);
 
   // Staggered entrance animation
@@ -73,6 +73,7 @@ export default function AssetVaultPage() {
         assetCount={assets.length} 
         onUpload={uploadAsset}
         isUploading={uploading}
+        onDeleteAll={removeAllAssets}
       />
 
       <div className="w-full space-y-8">

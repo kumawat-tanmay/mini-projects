@@ -4,7 +4,8 @@ const { verifyToken } = require('../../middlewares/auth');
 const {
   getAllAssets,
   uploadAsset,
-  deleteAsset
+  deleteAsset,
+  deleteAllAssets
 } = require('./controller');
 
 const router = express.Router();
@@ -23,6 +24,7 @@ router.use(verifyToken);
 // CRUD Routes
 router.get('/', getAllAssets);
 router.post('/', upload.single('file'), uploadAsset);
+router.delete('/all', deleteAllAssets);
 router.delete('/:id', deleteAsset);
 
 module.exports = router;
