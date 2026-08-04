@@ -31,7 +31,7 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Google login failed');
 
-      localStorage.setItem('token', data.token);
+      setToken(data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       window.dispatchEvent(new Event('auth-change'));
       router.push('/dashboard');
