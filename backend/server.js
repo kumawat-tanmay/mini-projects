@@ -11,11 +11,21 @@ const dashboardRoutes = require('./src/modules/dashboard/routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Dynamic CORS configuration to support ALL Vercel preview domains and localhost instantly
-app.use(cors({ 
-  origin: (origin, callback) => callback(null, origin || true),
-  credentials: true 
-}));
+// Bulletproof Native CORS for Vercel Serverless
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
 app.use(express.json());
 
 // Native Security Headers
