@@ -30,7 +30,7 @@ function AuthContent() {
   useEffect(() => {
     if (!overlayRef.current) return;
     
-    // Animate the sliding overlay when toggling modes
+    // Animate the sliding overlay when toggling modes (desktop only)
     gsap.to(overlayRef.current, {
       x: isLogin ? "0%" : "100%",
       duration: 0.8,
@@ -39,24 +39,36 @@ function AuthContent() {
   }, [isLogin]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-screen bg-white flex overflow-hidden opacity-0">
+    <div ref={containerRef} className="relative w-full min-h-screen md:h-screen bg-white flex flex-col md:flex-row overflow-hidden opacity-0">
       
+      {/* ============ MOBILE LAYOUT ============ */}
+      {/* On mobile: stack forms vertically, show only the active one */}
+      <div className="md:hidden w-full min-h-screen flex items-center justify-center p-6 sm:p-8">
+        <div className="w-full max-w-md">
+          {isLogin ? (
+            <LoginForm onSwitch={() => setIsLogin(false)} />
+          ) : (
+            <SignupForm onSwitch={() => setIsLogin(true)} />
+          )}
+        </div>
+      </div>
 
+      {/* ============ DESKTOP LAYOUT ============ */}
       {/* Left Side (Underneath): Signup Form */}
-      <div className="w-full md:w-1/2 h-full flex items-center justify-center p-8 md:p-16">
+      <div className="hidden md:flex w-1/2 h-full items-center justify-center p-8 lg:p-16">
         <div className={`w-full max-w-md transition-opacity duration-500 delay-300 ${isLogin ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}>
           <SignupForm onSwitch={() => setIsLogin(true)} />
         </div>
       </div>
 
       {/* Right Side (Underneath): Login Form */}
-      <div className="w-full md:w-1/2 h-full flex items-center justify-center p-8 md:p-16">
+      <div className="hidden md:flex w-1/2 h-full items-center justify-center p-8 lg:p-16">
         <div className={`w-full max-w-md transition-opacity duration-500 delay-300 ${isLogin ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
           <LoginForm onSwitch={() => setIsLogin(false)} />
         </div>
       </div>
 
-      {/* Sliding Image Overlay */}
+      {/* Sliding Image Overlay (Desktop only) */}
       <div 
         ref={overlayRef} 
         className="hidden md:block absolute top-0 left-0 w-1/2 h-full z-20 pointer-events-none"
@@ -91,10 +103,10 @@ function AuthContent() {
             <div className="absolute inset-0 bg-gradient-to-br from-black/50 to-black/20" />
             
             <div className="absolute inset-0 flex flex-col items-center justify-end text-center p-8 pb-16 w-full">
-              <h2 className="text-6xl xl:text-7xl font-black text-white uppercase tracking-tighter mb-4 drop-shadow-2xl w-full whitespace-nowrap">
+              <h2 className="text-4xl lg:text-6xl xl:text-7xl font-black text-white uppercase tracking-tighter mb-4 drop-shadow-2xl w-full">
                 {isLogin ? "Welcome Back." : "Start Your Journey."}
               </h2>
-              <p className="text-slate-200 font-bold text-xl w-full px-4 drop-shadow-lg">
+              <p className="text-slate-200 font-bold text-lg lg:text-xl w-full px-4 drop-shadow-lg">
                 {isLogin 
                   ? "Pick up where you left off. Your workspace is ready." 
                   : "Organize your life, clear your mind, and elevate your focus."}

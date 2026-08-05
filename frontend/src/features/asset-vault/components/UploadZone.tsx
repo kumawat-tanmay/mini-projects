@@ -49,7 +49,7 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
-      className={`relative py-10 px-16 flex items-center justify-center gap-6 border-4 border-dashed transition-all duration-300 min-w-[450px] ${
+      className={`relative py-6 sm:py-10 px-6 sm:px-16 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 border-4 border-dashed transition-all duration-300 w-full min-w-[280px] sm:min-w-[450px] ${
         isDragging
           ? 'border-black bg-yellow-300 dark:bg-yellow-500 text-black'
           : 'border-black bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-neutral-900 text-black dark:text-white'
@@ -70,15 +70,18 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
         </>
       ) : (
         <>
-          <div className="flex gap-2 opacity-80 border-r-2 border-black/20 dark:border-white/20 pr-6">
+          <div className="flex gap-2 opacity-80 sm:border-r-2 sm:border-black/20 dark:sm:border-white/20 sm:pr-6">
             <ImageIcon size={32} strokeWidth={2.5} />
             <FileType size={32} strokeWidth={2.5} />
           </div>
-          <div className="flex flex-col items-start leading-tight">
-            <span className="font-bold uppercase tracking-wider text-lg">
+          <div className="flex flex-col items-center sm:items-start leading-tight">
+            <span className="font-bold uppercase tracking-wider text-lg text-center sm:text-left">
               Drag & Drop to Upload
             </span>
-            <span className="text-xs font-bold uppercase tracking-widest opacity-60">
+            <span className="hidden sm:block text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mt-1 mb-0.5">
+              Pro Tip: Press Ctrl+V to paste screenshots
+            </span>
+            <span className="text-xs font-bold uppercase tracking-widest opacity-60 mt-0.5">
               Less than 10 MB file
             </span>
           </div>

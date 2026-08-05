@@ -35,7 +35,7 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
   };
 
   const handleLogout = () => {
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = "/auth";
   };
 
@@ -51,8 +51,8 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
     <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-40 flex items-center justify-between transition-colors duration-300">
       
       {/* Left side: Logo / Brand & Page Title */}
-      <div className="flex items-center h-full">
-        <div className="flex items-center gap-4 w-64 px-6 h-full border-r border-slate-200 dark:border-slate-800 shrink-0">
+      <div className="flex items-center h-full min-w-0">
+        <div className="flex items-center gap-2 sm:gap-4 w-auto lg:w-64 px-3 sm:px-6 h-full lg:border-r border-slate-200 dark:border-slate-800 shrink-0">
           <button 
             onClick={toggleSidebar} 
             className="p-1 -ml-1 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
@@ -60,24 +60,24 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
           >
             <Menu size={24} strokeWidth={2.5} />
           </button>
-          <span className="font-black uppercase tracking-widest text-black dark:text-white text-lg leading-none">
+          <span className="font-black uppercase tracking-widest text-black dark:text-white text-base sm:text-lg leading-none">
             NexTool
           </span>
         </div>
         
-        <div className="px-6 flex items-center h-full">
-          <h1 className="text-xl font-black uppercase tracking-widest text-black dark:text-white transition-colors duration-300">
+        <div className="hidden sm:flex px-4 lg:px-6 items-center h-full">
+          <h1 className="text-base lg:text-xl font-black uppercase tracking-widest text-black dark:text-white transition-colors duration-300 truncate">
             {getPageTitle()}
           </h1>
         </div>
       </div>
 
       {/* Right side: Time, Theme, Profile, Logout */}
-      <div className="flex items-center gap-6 px-6 h-full">
+      <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 px-3 sm:px-6 h-full shrink-0">
         
-        {/* Time Widget */}
+        {/* Time Widget — hidden on small screens */}
         {mounted && (
-          <div className="hidden md:flex flex-col items-end text-black dark:text-white transition-colors duration-300">
+          <div className="hidden lg:flex flex-col items-end text-black dark:text-white transition-colors duration-300">
             <span className="text-xs font-bold uppercase tracking-widest">
               {time.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
             </span>
@@ -98,12 +98,12 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
 
         {/* Profile Dropdown */}
         <div className="relative group">
-          <button className="flex items-center justify-center w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black font-black uppercase overflow-hidden border-2 border-transparent group-hover:border-black/20 dark:group-hover:border-white/20 transition-all">
+          <button className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black dark:bg-white text-white dark:text-black font-black uppercase overflow-hidden border-2 border-transparent group-hover:border-black/20 dark:group-hover:border-white/20 transition-all text-xs sm:text-sm">
             <span>{userProfile ? userProfile.name.substring(0, 2) : 'U'}</span>
           </button>
 
           {/* Dropdown Menu (visible on hover) */}
-          <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-900 border-4 border-black dark:border-neutral-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+          <div className="absolute right-0 top-full mt-2 w-48 sm:w-56 bg-white dark:bg-gray-900 border-4 border-black dark:border-neutral-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
             <div className="px-4 py-3 border-b-4 border-black dark:border-neutral-700">
               <p className="font-black text-sm text-black dark:text-white truncate">
                 {userProfile ? userProfile.name : 'Loading...'}
@@ -120,15 +120,15 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
           </div>
         </div>
 
-        {/* Logout */}
+        {/* Logout — hide text on very small screens */}
         <button 
           onClick={handleLogout}
-          className="relative group ml-2"
+          className="relative group ml-1 sm:ml-2"
         >
           <div className="absolute inset-0 bg-black dark:bg-neutral-700 translate-y-1 translate-x-1 group-hover:translate-y-0.5 group-hover:translate-x-0.5 transition-transform duration-200"></div>
-          <div className="relative bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-neutral-700 px-4 py-2 flex items-center gap-2 transition-transform duration-200 hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
+          <div className="relative bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-neutral-700 px-2 sm:px-4 py-2 flex items-center gap-2 transition-transform duration-200 hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
             <LogOut size={16} strokeWidth={2.5} />
-            <span className="font-black uppercase tracking-widest text-xs">Logout</span>
+            <span className="font-black uppercase tracking-widest text-xs hidden sm:inline">Logout</span>
           </div>
         </button>
       </div>

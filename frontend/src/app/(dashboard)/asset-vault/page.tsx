@@ -76,7 +76,10 @@ export default function AssetVaultPage() {
         onDeleteAll={removeAllAssets}
       />
 
-      <div className="w-full space-y-8">
+      <div className="w-full space-y-8 mt-8">
+        
+        {/* Upload Zone (Page level, non-sticky) */}
+        <UploadZone onUpload={uploadAsset} isUploading={uploading} />
         
         {/* Loading State */}
         {loading && (

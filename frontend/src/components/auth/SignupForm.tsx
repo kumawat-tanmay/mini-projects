@@ -108,12 +108,12 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
 
   return (
     <div className="w-full">
-      <div className="mb-8 text-center md:text-left">
-        <h1 className="text-4xl font-black text-black uppercase tracking-tighter mb-2">Create Account</h1>
-        <p className="text-slate-600 font-bold text-base">Join the hub. Master your productivity.</p>
+      <div className="mb-6 sm:mb-8 text-center md:text-left">
+        <h1 className="text-3xl sm:text-4xl font-black text-black uppercase tracking-tighter mb-2">Create Account</h1>
+        <p className="text-slate-600 font-bold text-sm sm:text-base">Join the hub. Master your productivity.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <div>
           <label className="block text-sm font-black text-black uppercase tracking-widest mb-2">Full Name</label>
           <input 
@@ -121,7 +121,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-white text-black px-4 py-3 text-lg font-bold border-4 border-black outline-none focus:bg-emerald-50 transition-colors"
+            className="w-full bg-white text-black px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg font-bold border-4 border-black outline-none focus:bg-emerald-50 transition-colors"
             placeholder="John Doe"
           />
         </div>
@@ -133,7 +133,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-white text-black px-4 py-3 text-lg font-bold border-4 border-black outline-none focus:bg-emerald-50 transition-colors"
+            className="w-full bg-white text-black px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg font-bold border-4 border-black outline-none focus:bg-emerald-50 transition-colors"
             placeholder="you@example.com"
           />
         </div>
@@ -146,7 +146,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white text-black px-4 py-3 pr-12 text-lg font-bold border-4 border-black outline-none focus:bg-emerald-50 transition-colors"
+              className="w-full bg-white text-black px-3 sm:px-4 py-2.5 sm:py-3 pr-12 text-base sm:text-lg font-bold border-4 border-black outline-none focus:bg-emerald-50 transition-colors"
               placeholder="••••••••"
             />
             <button 
@@ -170,7 +170,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
           <button 
             type="submit" 
             disabled={isLoading}
-            className="relative w-full bg-emerald-400 border-4 border-black text-black font-black uppercase tracking-widest text-lg px-6 py-4 outline-none disabled:opacity-70 transition-transform hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0"
+            className="relative w-full bg-emerald-400 border-4 border-black text-black font-black uppercase tracking-widest text-base sm:text-lg px-4 sm:px-6 py-3 sm:py-4 outline-none disabled:opacity-70 transition-transform hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0"
           >
             {isLoading ? "Creating..." : "Sign Up"}
           </button>

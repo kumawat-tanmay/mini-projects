@@ -10,8 +10,8 @@ const getCookie = (name: string) => {
 };
 
 export const setToken = (token: string) => {
-  // Store token in cookie for 7 days
-  document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+  // Store token in cookie for 30 days
+  document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}`;
 };
 
 export const removeToken = () => {

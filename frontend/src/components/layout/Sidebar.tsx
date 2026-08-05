@@ -14,7 +14,12 @@ import {
   Database
 } from "lucide-react";
 
-export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
+interface SidebarProps {
+  isOpen?: boolean;
+  onNavClick?: () => void;
+}
+
+export default function Sidebar({ isOpen = true, onNavClick }: SidebarProps) {
   const pathname = usePathname();
   const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
 
@@ -25,10 +30,8 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
     { name: "Asset Vault", href: "/asset-vault", icon: Database },
   ];
 
-
-
   return (
-    <aside className={`fixed top-16 left-0 bottom-0 w-64 bg-white/80 dark:bg-black/80 backdrop-blur-md border-r border-slate-200 dark:border-slate-800 z-30 flex flex-col transition-all duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed top-16 left-0 bottom-0 w-64 bg-white/95 dark:bg-black/95 lg:bg-white/80 lg:dark:bg-black/80 backdrop-blur-md border-r border-slate-200 dark:border-slate-800 z-40 lg:z-30 flex flex-col transition-all duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       
       <div className="flex-1 overflow-y-auto p-4 py-8 space-y-8">
         
@@ -42,6 +45,7 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
                 <Link 
                   key={link.name} 
                   href={link.href}
+                  onClick={onNavClick}
                   className={`flex items-center gap-3 px-4 py-3 font-bold uppercase tracking-wider text-sm transition-colors border-2 ${
                     isActive 
                       ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-neutral-700" 

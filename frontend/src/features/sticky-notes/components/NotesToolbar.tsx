@@ -40,7 +40,7 @@ export default function NotesToolbar({
   ];
 
   return (
-    <div className="sticky top-16 z-20 flex flex-wrap items-center gap-4 mb-8 p-4 bg-emerald-50 border-4 border-black transition-colors duration-300">
+    <div className="sticky top-16 z-20 flex flex-wrap items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-8 p-2 sm:p-4 bg-emerald-50 border-4 border-black transition-colors duration-300">
       {/* New Note Button */}
       <button
         onClick={onCreateNote}
@@ -48,27 +48,27 @@ export default function NotesToolbar({
         className="group relative disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <div className="absolute inset-0 bg-black translate-y-1 translate-x-1 group-hover:translate-y-0.5 group-hover:translate-x-0.5 transition-transform group-disabled:translate-y-1 group-disabled:translate-x-1" />
-        <div className="relative bg-yellow-400 border-4 border-black px-5 py-2.5 flex items-center gap-2 font-black uppercase tracking-widest text-sm text-black transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
+        <div className="relative bg-yellow-400 border-4 border-black px-3 sm:px-5 py-2 sm:py-2.5 flex items-center gap-2 font-black uppercase tracking-widest text-xs sm:text-sm text-black transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0">
           <Plus size={18} strokeWidth={3} />
-          New Note
+          <span className="hidden sm:inline">New Note</span>
         </div>
       </button>
 
       {/* Note Count */}
-      <span className="text-sm font-black uppercase tracking-widest text-black">
+      <span className="hidden sm:inline text-sm font-black uppercase tracking-widest text-black">
         {noteCount}/{maxNotes}
       </span>
 
       {/* Spacer */}
-      <div className="flex-1" />
+      <div className="hidden sm:block flex-1" />
 
       {/* Sort Dropdown */}
-      <div className="flex items-center gap-2">
-        <ArrowUpDown size={16} className="text-black" />
+      <div className="flex items-center gap-1 sm:gap-2">
+        <ArrowUpDown size={14} className="hidden sm:block text-black" />
         <select
           value={sort}
           onChange={(e) => onSortChange(e.target.value as SortOption)}
-          className="text-sm font-bold border-2 border-black bg-transparent text-black px-3 py-1.5 outline-none cursor-pointer"
+          className="text-xs sm:text-sm font-bold border-2 border-black bg-transparent text-black px-2 py-1 sm:px-3 sm:py-1.5 outline-none cursor-pointer"
         >
           {sortOptions.map((opt) => (
             <option key={opt.value} value={opt.value} className="bg-white text-black">
@@ -79,12 +79,12 @@ export default function NotesToolbar({
       </div>
 
       {/* Filter Dropdown */}
-      <div className="flex items-center gap-2">
-        <Filter size={16} className="text-black" />
+      <div className="flex items-center gap-1 sm:gap-2">
+        <Filter size={14} className="hidden sm:block text-black" />
         <select
           value={filter}
           onChange={(e) => onFilterChange(e.target.value as FilterOption)}
-          className="text-sm font-bold border-2 border-black bg-transparent text-black px-3 py-1.5 outline-none cursor-pointer"
+          className="text-xs sm:text-sm font-bold border-2 border-black bg-transparent text-black px-2 py-1 sm:px-3 sm:py-1.5 outline-none cursor-pointer"
         >
           {filterOptions.map((opt) => (
             <option key={opt.value} value={opt.value} className="bg-white text-black">
@@ -101,7 +101,7 @@ export default function NotesToolbar({
           className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black bg-red-500 hover:bg-red-600 transition-colors px-3 py-1.5 border-2 border-black"
         >
           <Trash2 size={14} strokeWidth={3} />
-          Delete All
+          <span className="hidden sm:inline">Delete All</span>
         </button>
       )}
     </div>
