@@ -11,7 +11,8 @@ const getCookie = (name: string) => {
 
 export const setToken = (token: string) => {
   // Store token in cookie for 30 days
-  document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}`;
+  const isProd = process.env.NODE_ENV === 'production';
+  document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Strict${isProd ? '; Secure' : ''}`;
 };
 
 export const removeToken = () => {

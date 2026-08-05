@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from "next/navigation";
 import { apiFetch, setToken } from "../../utils/api";
 import { toast } from "react-toastify";
@@ -18,6 +18,7 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
   const [error, setError] = useState("");
   const [isForgotMode, setIsForgotMode] = useState(false);
   const router = useRouter();
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   const handleGoogleCredentialResponse = async (response: any) => {
     setIsLoading(true);
@@ -43,13 +44,13 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
 
   useEffect(() => {
     const initGoogle = () => {
-      if ((window as any).google) {
+      if ((window as any).google && googleBtnRef.current) {
         (window as any).google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
           callback: handleGoogleCredentialResponse,
         });
         (window as any).google.accounts.id.renderButton(
-          document.getElementById('google-btn-wrapper'),
+          googleBtnRef.current,
           { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with' }
         );
       }
@@ -190,10 +191,9 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
         </div>
       </form>
 
-      {/* Basic Google Login Placeholder for Ponytail style (zero deps script approach) */}
       <div className="mt-6 relative group">
-        <div className="absolute inset-0 bg-black translate-y-1 translate-x-1 transition-transform"></div>
-        <div className="relative w-full h-[52px] bg-white border-4 border-black text-black flex items-center justify-center overflow-hidden transition-transform active:translate-y-0 active:translate-x-0">
+        <div className="absolute inset-0 bg-black translate-y-1 translate-x-1 transition-transform group-hover:translate-y-0.5 group-hover:translate-x-0.5"></div>
+        <div className="relative w-full h-[52px] bg-white border-4 border-black text-black flex items-center justify-center overflow-hidden transition-transform active:translate-y-0 active:translate-x-0 cursor-pointer">
           
           {/* Custom Visual Button */}
           <div className="absolute inset-0 flex items-center justify-center gap-3 font-black uppercase tracking-widest text-sm pointer-events-none">
@@ -203,11 +203,11 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Continue with Google
+            Sign In with Google
           </div>
 
           {/* Invisible Google Native Button Overlay */}
-          <div id="google-btn-wrapper" className="absolute opacity-0 scale-[1.5] cursor-pointer z-10" title="Sign in with Google"></div>
+          <div ref={googleBtnRef} className="absolute inset-0 opacity-0 scale-[1.5] cursor-pointer z-10" title="Sign in with Google"></div>
           
         </div>
       </div>

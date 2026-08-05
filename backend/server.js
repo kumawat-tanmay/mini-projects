@@ -21,12 +21,26 @@ const dashboardRoutes = require('./src/modules/dashboard/routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy to ensure req.ip is correct behind Vercel/proxies (CRITICAL for rate limiting)
+app.set('trust proxy', 1);
+
+// Allowed origins whitelist
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL, // e.g. https://my-app.vercel.app
+].filter(Boolean);
+
 // Bulletproof Native CORS for Vercel Serverless
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin) {
+  
+  // Only set Access-Control-Allow-Origin if the origin is in our whitelist
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow same-origin requests (origin is undefined)
   }
+  
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');

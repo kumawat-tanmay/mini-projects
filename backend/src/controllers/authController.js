@@ -18,6 +18,11 @@ const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     
+    // Type validation to prevent NoSQL injection
+    if (typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string') {
+      return res.status(400).json({ error: 'Invalid input format' });
+    }
+
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ error: 'User already exists' });
@@ -45,6 +50,11 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
+    // Type validation to prevent NoSQL injection
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ error: 'Invalid input format' });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ error: 'Invalid credentials' });

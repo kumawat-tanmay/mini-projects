@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, setToken } from "../../utils/api";
 import { toast } from "react-toastify";
@@ -17,6 +17,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   const handleGoogleCredentialResponse = async (response: any) => {
     setIsLoading(true);
@@ -42,13 +43,13 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
 
   useEffect(() => {
     const initGoogle = () => {
-      if ((window as any).google) {
+      if ((window as any).google && googleBtnRef.current) {
         (window as any).google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
           callback: handleGoogleCredentialResponse,
         });
         (window as any).google.accounts.id.renderButton(
-          document.getElementById('google-btn-wrapper-signup'),
+          googleBtnRef.current,
           { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with' }
         );
       }
@@ -193,7 +194,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
           </div>
 
           {/* Invisible Google Native Button Overlay */}
-          <div id="google-btn-wrapper-signup" className="absolute opacity-0 scale-[1.5] cursor-pointer z-10" title="Sign up with Google"></div>
+          <div ref={googleBtnRef} className="absolute inset-0 opacity-0 scale-[1.5] cursor-pointer z-10" title="Sign up with Google"></div>
           
         </div>
       </div>
