@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SmoothScrolling from "@/components/ui/SmoothScrolling";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "Productivity Hub",
@@ -56,6 +57,7 @@ export default function RootLayout({
             theme="colored"
             toastClassName="!rounded-none !border-2 !border-black !font-black !uppercase !tracking-widest"
           />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
