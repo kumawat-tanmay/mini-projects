@@ -8,6 +8,7 @@ import NotesToolbar from '@/features/sticky-notes/components/NotesToolbar';
 import NotesBoard from '@/features/sticky-notes/components/NotesBoard';
 import EmptyState from '@/features/sticky-notes/components/EmptyState';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { CardSkeleton } from '@/components/ui/CardSkeleton';
 
 gsap.registerPlugin(useGSAP);
 
@@ -58,9 +59,7 @@ export default function StickyNotesPage() {
 
       {/* Loading State */}
       {loading && (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-12 h-12 border-4 border-black dark:border-neutral-700 border-t-transparent animate-spin" />
-        </div>
+        <CardSkeleton />
       )}
 
       {/* Notes Board or Empty State */}

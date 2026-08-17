@@ -59,11 +59,9 @@ const PromptCard = ({ prompt, isActive, onClick, onDelete }: PromptCardProps) =>
       id={`prompt-card-${prompt._id}`}
       ref={cardRef}
       onClick={() => !showDeleteModal && !isAnimatingDelete && onClick(prompt)}
-      className={`group relative w-full h-[150px] flex flex-col text-black border ${
-        isActive ? 'border-black dark:border-neutral-700 scale-[1.02]' : 'border-black dark:border-neutral-700/50'
-      } cursor-pointer transition-all duration-300 ${
-        !isAnimatingDelete && !showDeleteModal ? 'hover:-translate-y-1' : ''
-      } ${isAnimatingDelete ? 'pointer-events-none' : ''}`}
+      className={`group relative w-full h-[250px] flex flex-col text-black border-4 rounded-xl overflow-hidden ${
+        isActive ? 'border-black dark:border-white' : 'border-black dark:border-neutral-700'
+      } cursor-pointer transition-colors duration-200 hover:opacity-90 ${isAnimatingDelete ? 'pointer-events-none' : ''}`}
       style={{
         backgroundColor: bgColor,
       }}
@@ -90,34 +88,35 @@ const PromptCard = ({ prompt, isActive, onClick, onDelete }: PromptCardProps) =>
       )}
 
       {/* Header */}
-      <div className="w-full flex justify-between items-start p-3 border-b border-black bg-black/5">
-        <div className="font-black text-sm uppercase tracking-wider break-all min-w-0 mr-2">
+      <div className="w-full flex justify-between items-start p-3 border-b-4 border-black dark:border-neutral-700 bg-black/5">
+        <div className="font-black text-sm uppercase tracking-wider break-all min-w-0">
           {prompt.title || <span className="opacity-40">UNTITLED</span>}
-        </div>
-        
-        <div className="flex gap-2 transition-opacity shrink-0">
-          <button
-            onClick={handleCopy}
-            className="p-1 hover:bg-black hover:text-white transition-colors"
-            title="Copy prompt"
-          >
-            {isCopied ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={2} />}
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowDeleteModal(true); }}
-            className="p-1 hover:bg-red-500 hover:text-white text-red-600 transition-colors"
-            title="Delete prompt"
-          >
-            <Trash2 size={14} strokeWidth={2} />
-          </button>
         </div>
       </div>
 
       {/* Preview Snippet */}
       <div className="flex-1 p-3 overflow-hidden">
-        <p className="font-mono text-xs opacity-70 line-clamp-3 leading-relaxed break-words">
+        <p className="font-mono text-xs opacity-70 line-clamp-6 leading-relaxed break-words">
           {prompt.content || "No content..."}
         </p>
+      </div>
+
+      {/* Footer Bar */}
+      <div className="w-full flex justify-end items-center p-2 border-t-4 border-black dark:border-neutral-700 bg-black/5 gap-2">
+        <button
+          onClick={handleCopy}
+          className="p-1.5 border-2 border-black dark:border-neutral-700 hover:bg-black hover:text-white dark:hover:bg-neutral-700 dark:hover:text-white transition-colors flex items-center justify-center"
+          title="Copy prompt"
+        >
+          {isCopied ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={2.5} />}
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setShowDeleteModal(true); }}
+          className="p-1.5 border-2 border-black dark:border-neutral-700 hover:bg-red-500 hover:border-red-500 hover:text-white text-black dark:text-neutral-900 transition-colors flex items-center justify-center"
+          title="Delete prompt"
+        >
+          <Trash2 size={14} strokeWidth={2.5} />
+        </button>
       </div>
     </div>
   );

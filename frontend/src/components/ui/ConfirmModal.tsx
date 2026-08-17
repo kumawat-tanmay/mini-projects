@@ -29,7 +29,7 @@ export default function ConfirmModal({
       />
       
       {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-900 border-4 border-black p-8 max-w-md w-full mx-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+      <div className="relative bg-white dark:bg-neutral-900 border-4 border-black dark:border-neutral-700 p-8 max-w-md w-full mx-4 shadow-[8px_8px_0px_#000000] dark:shadow-[8px_8px_0px_#ffffff]">
         <button
           onClick={onCancel}
           className="absolute top-4 right-4 text-black dark:text-white hover:opacity-60 transition-opacity"

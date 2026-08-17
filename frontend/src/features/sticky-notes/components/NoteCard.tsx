@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Pin, Check, Trash2 } from 'lucide-react';
+import { Pin, Check, Trash2, Copy } from 'lucide-react';
 import gsap from 'gsap';
 import { disintegrate } from '../../../utils/thanosSnap';
 import type { StickyNote } from '../types';
 import ColorPicker from './ColorPicker';
+import { toast } from 'react-toastify';
 
 interface NoteCardProps {
   note: StickyNote;
@@ -49,6 +50,17 @@ const NoteCard = ({
       });
     } else {
       onDelete(note._id);
+    }
+  };
+
+  const handleCopy = async () => {
+    try {
+      const textToCopy = `${note.title ? note.title + '\n\n' : ''}${note.content}`.trim();
+      if (!textToCopy) return;
+      await navigator.clipboard.writeText(textToCopy);
+      toast.success('Copied to clipboard!');
+    } catch (err) {
+      toast.error('Failed to copy');
     }
   };
 
@@ -172,6 +184,13 @@ const NoteCard = ({
           title={note.isCompleted ? 'Mark active' : 'Mark complete'}
         >
           <Check size={14} strokeWidth={note.isCompleted ? 3 : 2} />
+        </button>
+        <button
+          onClick={handleCopy}
+          className="p-1.5 rounded-full hover:bg-black/10 transition-colors"
+          title="Copy"
+        >
+          <Copy size={14} strokeWidth={2} />
         </button>
         <ColorPicker
           currentColor={note.bgColor}

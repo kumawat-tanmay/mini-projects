@@ -29,13 +29,31 @@ export function useNotes() {
 
   // Create
   const addNote = useCallback(async (bgColor?: string) => {
+    const tempId = `temp-${Date.now()}`;
+    const tempNote: StickyNote = {
+      _id: tempId,
+      userId: 'temp',
+      title: '',
+      content: '',
+      bgColor: bgColor || '#FACC15',
+      textColor: '#000000',
+      isPinned: false,
+      isCompleted: false,
+      position: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setNotes((prev) => [tempNote, ...prev]);
+
     try {
-      const note = await api.createNote({ bgColor: bgColor || '#FACC15' });
-      setNotes((prev) => [note, ...prev]);
+      const realNote = await api.createNote({ bgColor: bgColor || '#FACC15' });
+      setNotes((prev) => prev.map((n) => (n._id === tempId ? realNote : n)));
       toast.success('Note created!');
-      return note;
+      return realNote;
     } catch (err: any) {
       toast.error(err.message || 'Failed to create note');
+      setNotes((prev) => prev.filter((n) => n._id !== tempId));
       return null;
     }
   }, []);

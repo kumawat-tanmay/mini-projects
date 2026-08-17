@@ -26,12 +26,26 @@ export const usePrompts = () => {
 
   // Create
   const createPrompt = useCallback(async (data: { title: string; content: string }) => {
+    const tempId = `temp-${Date.now()}`;
+    const tempPrompt: Prompt = {
+      _id: tempId,
+      userId: 'temp',
+      title: data.title,
+      content: data.content,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setPrompts((prev) => [tempPrompt, ...prev]);
+
     try {
       const newPrompt = await api.createPrompt(data);
-      setPrompts((prev) => [newPrompt, ...prev]);
+      setPrompts((prev) => prev.map((p) => (p._id === tempId ? newPrompt : p)));
       return newPrompt;
     } catch (err: any) {
       toast.error(err.message || 'Failed to save prompt');
+      setPrompts((prev) => prev.filter((p) => p._id !== tempId));
       return null;
     }
   }, []);

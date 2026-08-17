@@ -28,6 +28,12 @@ const userSchema = new mongoose.Schema({
   resetTokenExpires: {
     type: Date,
   },
+  focusMix: {
+    rain: { type: Number, default: 0 },
+    cafe: { type: Number, default: 0 },
+    noise: { type: Number, default: 0 },
+    keyboard: { type: Number, default: 0 },
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

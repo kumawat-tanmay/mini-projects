@@ -26,17 +26,20 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 10px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.4);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.6);
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.6);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 @keyframes scroll-down {
@@ -65,3 +68,40 @@ html.lenis, html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* 3D Cube Styles */
+.cube-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.cube {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  transform-style: preserve-3d;
+}
+
+.cube-face {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  padding: 8px;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.cube-face-front  { transform: rotateY(0deg) translateZ(60px); }
+.cube-face-back   { transform: rotateY(180deg) translateZ(60px); }
+.cube-face-right  { transform: rotateY(90deg) translateZ(60px); }
+.cube-face-left   { transform: rotateY(-90deg) translateZ(60px); }
+.cube-face-top    { transform: rotateX(90deg) translateZ(60px); }
+.cube-face-bottom { transform: rotateX(-90deg) translateZ(60px); }

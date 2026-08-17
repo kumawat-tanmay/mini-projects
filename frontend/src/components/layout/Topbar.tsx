@@ -44,6 +44,9 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
     if (pathname === "/sticky-notes") return "Sticky Notes";
     if (pathname === "/prompt-store") return "Prompt Store";
     if (pathname === "/asset-vault") return "Asset Vault";
+    if (pathname === "/api-ping") return "API Quick-Ping";
+    if (pathname === "/focus") return "Focus Soundscapes";
+    if (pathname === "/whiteboard") return "Architecture Whiteboard";
     return "Productivity Hub";
   };
 
@@ -51,7 +54,7 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
     <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-40 flex items-center justify-between transition-colors duration-300">
       
       {/* Left side: Logo / Brand & Page Title */}
-      <div className="flex items-center h-full min-w-0">
+      <div className="flex items-center h-full min-w-0 flex-1">
         <div className="flex items-center gap-2 sm:gap-4 w-auto lg:w-64 px-3 sm:px-6 h-full lg:border-r border-slate-200 dark:border-slate-800 shrink-0">
           <button 
             onClick={toggleSidebar} 
@@ -65,8 +68,8 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
           </span>
         </div>
         
-        <div className="hidden sm:flex px-4 lg:px-6 items-center h-full">
-          <h1 className="text-base lg:text-xl font-black uppercase tracking-widest text-black dark:text-white transition-colors duration-300 truncate">
+        <div className="flex px-3 sm:px-4 lg:px-6 items-center h-full min-w-0 flex-1 sm:flex-initial">
+          <h1 className="text-xs sm:text-base lg:text-xl font-black uppercase tracking-widest text-black dark:text-white transition-colors duration-300 truncate">
             {getPageTitle()}
           </h1>
         </div>

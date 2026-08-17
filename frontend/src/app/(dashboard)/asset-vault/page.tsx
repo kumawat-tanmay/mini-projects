@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useAssets } from '@/features/asset-vault/useAssets';
 import AssetToolbar from '@/features/asset-vault/components/AssetToolbar';
+import { CardSkeleton } from '@/components/ui/CardSkeleton';
 import AssetCard from '@/features/asset-vault/components/AssetCard';
 import UploadZone from '@/features/asset-vault/components/UploadZone';
 import ConfirmModal from '@/components/ui/ConfirmModal';
@@ -83,9 +84,7 @@ export default function AssetVaultPage() {
         
         {/* Loading State */}
         {loading && (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-12 h-12 border-4 border-black dark:border-neutral-700 border-t-transparent animate-spin" />
-          </div>
+          <CardSkeleton />
         )}
 
         {/* Assets Grid */}

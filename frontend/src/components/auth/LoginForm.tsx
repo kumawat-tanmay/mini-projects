@@ -45,10 +45,13 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
   useEffect(() => {
     const initGoogle = () => {
       if ((window as any).google && googleBtnRef.current) {
-        (window as any).google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-          callback: handleGoogleCredentialResponse,
-        });
+        if (!(window as any).__googleInitialized) {
+          (window as any).google.accounts.id.initialize({
+            client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+          });
+          (window as any).__googleInitialized = true;
+        }
         (window as any).google.accounts.id.renderButton(
           googleBtnRef.current,
           { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with' }
@@ -97,6 +100,7 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
         body: JSON.stringify({ email, password })
       });
       setToken(res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
       toast.success("Logged in successfully!");
       // Adding actual redirection
       setTimeout(() => {

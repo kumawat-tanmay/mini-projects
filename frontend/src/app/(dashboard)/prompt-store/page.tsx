@@ -10,6 +10,7 @@ import PromptEditor from '@/features/prompt-store/components/PromptEditor';
 import type { Prompt } from '@/features/prompt-store/types';
 import { disintegrate } from '@/utils/thanosSnap';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { CardSkeleton } from '@/components/ui/CardSkeleton';
 
 gsap.registerPlugin(useGSAP);
 
@@ -68,9 +69,7 @@ export default function PromptStorePage() {
       />
 
       {loading && prompts.length === 0 && (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-12 h-12 border-4 border-black dark:border-neutral-700 border-t-transparent animate-spin" />
-        </div>
+        <CardSkeleton />
       )}
 
       {!loading && prompts.length === 0 && (

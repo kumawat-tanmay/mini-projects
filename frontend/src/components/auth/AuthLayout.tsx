@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import gsap from "gsap";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import Link from "next/link";
+import Image from "next/image";
+import { getCookie } from "../../utils/api";
 
 function AuthContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const mode = searchParams.get("mode");
   
   // Initialize state based on URL search params (e.g. ?mode=signup)
@@ -17,6 +20,12 @@ function AuthContent() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // If already logged in, redirect to dashboard immediately
+    if (getCookie("auth_token")) {
+      router.replace("/dashboard");
+      return;
+    }
+
     // Page Entrance Animation (slide up black screen to reveal Auth)
     if (containerRef.current) {
       gsap.fromTo(
@@ -25,7 +34,7 @@ function AuthContent() {
         { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.2 }
       );
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!overlayRef.current) return;
@@ -90,15 +99,21 @@ function AuthContent() {
             </div>
 
             {/* The Images (Crossfade based on state) */}
-            <img 
+            <Image 
               src="https://unsplash.com/photos/xKJ39C-Z9LQ/download?w=1920" 
               alt="Pink Hydrangea" 
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isLogin ? 'opacity-100' : 'opacity-0'}`}
+              fill
+              quality={50}
+              priority
+              className={`object-cover transition-opacity duration-1000 ${isLogin ? 'opacity-100' : 'opacity-0'}`}
             />
-            <img 
+            <Image 
               src="https://unsplash.com/photos/_03pu4Ejg5U/download?w=1920" 
               alt="Desert Dune" 
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${!isLogin ? 'opacity-100' : 'opacity-0'}`}
+              fill
+              quality={50}
+              priority
+              className={`object-cover transition-opacity duration-1000 ${!isLogin ? 'opacity-100' : 'opacity-0'}`}
             />
             <div className="absolute inset-0 bg-gradient-to-br from-black/50 to-black/20" />
             

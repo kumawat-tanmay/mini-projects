@@ -52,7 +52,7 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
       className={`relative py-6 sm:py-10 px-6 sm:px-16 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 border-4 border-dashed transition-all duration-300 w-full min-w-[280px] sm:min-w-[450px] ${
         isDragging
           ? 'border-black bg-yellow-300 dark:bg-yellow-500 text-black'
-          : 'border-black bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-neutral-900 text-black dark:text-white'
+          : 'border-black dark:border-neutral-600 bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-neutral-900 text-black dark:text-white'
       }`}
     >
       <input

@@ -11,7 +11,10 @@ import {
   Trello, 
   CalendarDays, 
   Timer,
-  Database
+  Database,
+  Globe,
+  Volume2,
+  PenTool
 } from "lucide-react";
 
 interface SidebarProps {
@@ -28,6 +31,9 @@ export default function Sidebar({ isOpen = true, onNavClick }: SidebarProps) {
     { name: "Sticky Notes", href: "/sticky-notes", icon: StickyNote },
     { name: "Prompt Store", href: "/prompt-store", icon: Sparkles },
     { name: "Asset Vault", href: "/asset-vault", icon: Database },
+    { name: "API Ping", href: "/api-ping", icon: Globe },
+    { name: "Focus Mixer", href: "/focus", icon: Volume2 },
+    { name: "Whiteboard", href: "/whiteboard", icon: PenTool },
   ];
 
   return (

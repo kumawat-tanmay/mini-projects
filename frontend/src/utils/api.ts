@@ -1,7 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api` : "http://localhost:5000/api";
 
 // Simple cookie parser (zero dependencies)
-const getCookie = (name: string) => {
+export const getCookie = (name: string) => {
   if (typeof document === 'undefined') return null;
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -12,7 +12,8 @@ const getCookie = (name: string) => {
 export const setToken = (token: string) => {
   // Store token in cookie for 30 days
   const isProd = process.env.NODE_ENV === 'production';
-  document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Strict${isProd ? '; Secure' : ''}`;
+  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}; expires=${expires}; SameSite=Strict${isProd ? '; Secure' : ''}`;
 };
 
 export const removeToken = () => {
