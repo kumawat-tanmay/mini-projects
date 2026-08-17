@@ -11,9 +11,9 @@ export const getCookie = (name: string) => {
 
 export const setToken = (token: string) => {
   // Store token in cookie for 30 days
-  const isProd = process.env.NODE_ENV === 'production';
   const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}; expires=${expires}; SameSite=Strict${isProd ? '; Secure' : ''}`;
+  const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}; expires=${expires}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
 };
 
 export const removeToken = () => {

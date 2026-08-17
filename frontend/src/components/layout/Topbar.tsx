@@ -25,7 +25,11 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
           setUserProfile({ name: res.name || 'User', email: res.email });
         }
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error('Session validation failed:', err);
+        document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        window.location.href = "/auth";
+      });
 
     return () => clearInterval(timer);
   }, []);

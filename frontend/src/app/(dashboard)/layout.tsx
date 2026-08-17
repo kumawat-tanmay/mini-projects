@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Topbar from "@/components/layout/Topbar";
 import Sidebar from "@/components/layout/Sidebar";
 import SmoothScrolling from "@/components/layout/SmoothScrolling";
+import { useRouter } from "next/navigation";
+import { getCookie } from "@/utils/api";
 
 export default function DashboardLayout({
   children,
@@ -12,6 +14,14 @@ export default function DashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
+
+  // Redirect to login if token is missing
+  useEffect(() => {
+    if (!getCookie("auth_token")) {
+      router.replace("/auth");
+    }
+  }, [router]);
 
   // Track viewport width to determine mobile vs desktop
   useEffect(() => {
