@@ -17,7 +17,6 @@ const stickyNotesRoutes = require('./src/modules/sticky-notes/routes');
 const promptStoreRoutes = require('./src/modules/prompt-store/routes');
 const assetVaultRoutes = require('./src/modules/asset-vault/routes');
 const dashboardRoutes = require('./src/modules/dashboard/routes');
-const apiPingRoutes = require('./src/modules/api-ping/routes');
 const focusRoutes = require('./src/modules/focus/routes');
 const whiteboardRoutes = require('./src/modules/whiteboard/routes');
 
@@ -53,7 +52,8 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Native Security Headers
 app.use((req, res, next) => {
@@ -90,7 +90,6 @@ app.use('/api/sticky-notes', stickyNotesRoutes);
 app.use('/api/prompt-store', promptStoreRoutes);
 app.use('/api/assets', assetVaultRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/api-ping', apiPingRoutes);
 app.use('/api/focus', focusRoutes);
 app.use('/api/whiteboard', whiteboardRoutes);
 

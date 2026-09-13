@@ -27,8 +27,21 @@ exports.updateWhiteboard = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    res.json(board);
+    res.json({ success: true, updatedAt: board ? board.updatedAt : new Date().toISOString() });
   } catch (error) {
     res.status(500).json({ error: 'Failed to save whiteboard data.' });
+  }
+};
+
+exports.clearWhiteboard = async (req, res) => {
+  try {
+    const board = await Whiteboard.findOneAndUpdate(
+      { userId: req.user.id },
+      { canvasData: {} },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, updatedAt: board ? board.updatedAt : new Date().toISOString(), message: 'Whiteboard cleared successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to clear whiteboard data.' });
   }
 };

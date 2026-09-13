@@ -48,7 +48,6 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
     if (pathname === "/sticky-notes") return "Sticky Notes";
     if (pathname === "/prompt-store") return "Prompt Store";
     if (pathname === "/asset-vault") return "Asset Vault";
-    if (pathname === "/api-ping") return "API Quick-Ping";
     if (pathname === "/focus") return "Focus Soundscapes";
     if (pathname === "/whiteboard") return "Architecture Whiteboard";
     return "Productivity Hub";

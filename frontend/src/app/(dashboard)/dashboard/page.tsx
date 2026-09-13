@@ -120,19 +120,6 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/api-ping" className="group relative block gsap-animate">
-            <div className="absolute inset-0 bg-black dark:bg-neutral-700 translate-y-2 translate-x-2 group-hover:translate-y-1 group-hover:translate-x-1 transition-transform duration-200"></div>
-            <div className="relative bg-emerald-400 border-4 border-black dark:border-neutral-700 p-5 sm:p-8 transition-transform duration-200 hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 h-full flex flex-col">
-              <div className="flex-1">
-                <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-black mb-3 sm:mb-4">API Ping</h3>
-                <p className="text-base sm:text-lg font-bold text-slate-800">Lightweight built-in Postman client. Quickly test REST endpoints with header and body controls.</p>
-              </div>
-              <div className="mt-6 sm:mt-8 flex items-center gap-2 font-black uppercase tracking-widest text-black text-sm sm:text-base">
-                Open App <ArrowRight size={20} strokeWidth={3} />
-              </div>
-            </div>
-          </Link>
-
           <Link href="/focus" className="group relative block gsap-animate">
             <div className="absolute inset-0 bg-black dark:bg-neutral-700 translate-y-2 translate-x-2 group-hover:translate-y-1 group-hover:translate-x-1 transition-transform duration-200"></div>
             <div className="relative bg-purple-400 border-4 border-black dark:border-neutral-700 p-5 sm:p-8 transition-transform duration-200 hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 h-full flex flex-col">
