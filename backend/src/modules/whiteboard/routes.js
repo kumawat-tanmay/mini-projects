@@ -1,14 +1,22 @@
 const express = require('express');
 const { verifyToken } = require('../../middlewares/auth');
-const { getWhiteboard, updateWhiteboard, clearWhiteboard } = require('./controller');
+const {
+  getBoards,
+  getBoardById,
+  createBoard,
+  updateBoard,
+  deleteBoard,
+} = require('./controller');
 
 const router = express.Router();
 
-// Require auth
+// Require JWT authentication on all routes
 router.use(verifyToken);
 
-router.get('/', getWhiteboard);
-router.put('/', updateWhiteboard);
-router.delete('/', clearWhiteboard);
+router.get('/', getBoards);
+router.post('/', createBoard);
+router.get('/:id', getBoardById);
+router.put('/:id', updateBoard);
+router.delete('/:id', deleteBoard);
 
 module.exports = router;

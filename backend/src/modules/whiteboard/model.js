@@ -6,7 +6,13 @@ const whiteboardSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      unique: true, // One whiteboard per user
+      index: true,
+    },
+    title: {
+      type: String,
+      default: 'Untitled Board',
+      trim: true,
+      maxlength: 100,
     },
     canvasData: {
       type: mongoose.Schema.Types.Mixed,
@@ -15,5 +21,8 @@ const whiteboardSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Compound index for fast user board queries sorted by most recently modified
+whiteboardSchema.index({ userId: 1, updatedAt: -1 });
 
 module.exports = mongoose.model('Whiteboard', whiteboardSchema);

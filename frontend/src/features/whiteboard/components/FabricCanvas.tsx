@@ -34,12 +34,23 @@ import {
   Download,
   Save,
   RotateCcw,
-  Sparkles,
   Check,
   AlertTriangle,
   Loader2,
+  FolderOpen,
+  Plus,
+  X,
+  Edit2,
+  Calendar,
 } from 'lucide-react';
-import { fetchWhiteboard, updateWhiteboard, clearWhiteboard } from '../api';
+import {
+  fetchBoards,
+  fetchBoardById,
+  createBoard,
+  updateBoard,
+  deleteBoard,
+  WhiteboardSummary,
+} from '../api';
 
 type ToolType = 'select' | 'pencil' | 'rect' | 'circle' | 'triangle' | 'line' | 'text' | 'sticky';
 
@@ -62,7 +73,19 @@ export default function FabricCanvas() {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<Canvas | null>(null);
 
-  // State
+  // Multi-Board State
+  const [boards, setBoards] = useState<WhiteboardSummary[]>([]);
+  const [activeBoardId, setActiveBoardId] = useState<string>('');
+  const [activeBoardTitle, setActiveBoardTitle] = useState<string>('My Whiteboard');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleInput, setTitleInput] = useState('');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [newBoardName, setNewBoardName] = useState('');
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [editingCardTitle, setEditingCardTitle] = useState('');
+
+  // Canvas tool & styling state
   const [activeTool, setActiveTool] = useState<ToolType>('select');
   const [activeColor, setActiveColor] = useState('#000000');
   const [activeFill, setActiveFill] = useState('transparent');
@@ -84,6 +107,12 @@ export default function FabricCanvas() {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoadRef = useRef(true);
 
+  // Ref tracking current active board ID for debounce closures
+  const activeBoardIdRef = useRef<string>('');
+  useEffect(() => {
+    activeBoardIdRef.current = activeBoardId;
+  }, [activeBoardId]);
+
   // Track spacebar for panning
   const isSpacePressedRef = useRef(false);
   const isPanningRef = useRef(false);
@@ -100,11 +129,9 @@ export default function FabricCanvas() {
     if (!fabricRef.current || isUndoRedoRef.current || isInitialLoadRef.current) return;
     const json = JSON.stringify(fabricRef.current.toJSON());
     
-    // Discard any redo states if we made a new action
     const newHistory = historyRef.current.slice(0, historyIndexRef.current + 1);
     newHistory.push(json);
     
-    // Cap history at 25 states
     if (newHistory.length > 25) {
       newHistory.shift();
     }
@@ -116,7 +143,7 @@ export default function FabricCanvas() {
 
   // Execute debounced cloud save
   const triggerAutoSave = useCallback(() => {
-    if (isInitialLoadRef.current || !fabricRef.current) return;
+    if (isInitialLoadRef.current || !fabricRef.current || !activeBoardIdRef.current) return;
     
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -125,12 +152,18 @@ export default function FabricCanvas() {
     setSaveState('changes-pending');
     
     saveTimeoutRef.current = setTimeout(async () => {
-      if (!fabricRef.current) return;
+      const currentId = activeBoardIdRef.current;
+      if (!fabricRef.current || !currentId) return;
       try {
         setSaveState('saving');
         const json = fabricRef.current.toJSON();
-        await updateWhiteboard(json);
+        await updateBoard(currentId, json);
         setSaveState('saved');
+
+        // Update local boards list timestamp
+        setBoards((prev) =>
+          prev.map((b) => (b._id === currentId ? { ...b, updatedAt: new Date().toISOString() } : b))
+        );
       } catch (err) {
         console.error('Failed to auto-save canvas:', err);
         setSaveState('error');
@@ -138,7 +171,65 @@ export default function FabricCanvas() {
     }, 1500);
   }, []);
 
-  // Initialize Canvas
+  // Load a board's data into the canvas
+  const loadBoardData = useCallback(async (boardId: string) => {
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+
+    try {
+      setIsLoading(true);
+      isInitialLoadRef.current = true;
+
+      // Clear any pending auto-saves
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      const board = await fetchBoardById(boardId);
+      setActiveBoardId(board._id);
+      setActiveBoardTitle(board.title);
+      setTitleInput(board.title);
+
+      // Reset canvas
+      canvas.clear();
+      const bgColor = resolvedTheme === 'dark' ? '#121212' : '#ffffff';
+      canvas.backgroundColor = bgColor;
+
+      // Reset zoom/pan
+      canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+      setZoomLevel(100);
+
+      // Load Fabric JSON if valid objects array exists
+      if (
+        board.canvasData &&
+        typeof board.canvasData === 'object' &&
+        Array.isArray(board.canvasData.objects) &&
+        board.canvasData.objects.length > 0
+      ) {
+        isUndoRedoRef.current = true;
+        await canvas.loadFromJSON(board.canvasData);
+        canvas.requestRenderAll();
+        isUndoRedoRef.current = false;
+      } else {
+        canvas.requestRenderAll();
+      }
+
+      // Initialize history stack
+      const initialJson = JSON.stringify(canvas.toJSON());
+      historyRef.current = [initialJson];
+      historyIndexRef.current = 0;
+      updateUndoRedoState();
+      setSaveState('idle');
+    } catch (err) {
+      console.error('Failed to load board:', err);
+      setSaveState('error');
+    } finally {
+      isInitialLoadRef.current = false;
+      setIsLoading(false);
+    }
+  }, [resolvedTheme, updateUndoRedoState]);
+
+  // Initialize Canvas & Load Initial Boards List
   useEffect(() => {
     let isMounted = true;
     if (!canvasElRef.current || !containerRef.current) return;
@@ -226,49 +317,29 @@ export default function FabricCanvas() {
       }
     });
 
-    // Initial load from MongoDB
-    const loadInitialData = async () => {
+    // Fetch boards list and initialize the active board
+    const initBoards = async () => {
       try {
         setIsLoading(true);
-        const board = await fetchWhiteboard();
-        
-        if (!isMounted || !fabricRef.current) return;
+        const boardsData = await fetchBoards();
+        if (!isMounted) return;
 
-        // Ensure canvasData is a valid Fabric export with an objects array (filters out legacy tldraw data)
-        if (
-          board &&
-          board.canvasData &&
-          typeof board.canvasData === 'object' &&
-          Array.isArray(board.canvasData.objects) &&
-          board.canvasData.objects.length > 0
-        ) {
-          isUndoRedoRef.current = true;
-          await canvas.loadFromJSON(board.canvasData);
-          if (isMounted) {
-            canvas.requestRenderAll();
-          }
-          isUndoRedoRef.current = false;
-        }
+        setBoards(boardsData);
 
-        if (isMounted) {
-          // Initialize history stack
-          const initialJson = JSON.stringify(canvas.toJSON());
-          historyRef.current = [initialJson];
-          historyIndexRef.current = 0;
-          updateUndoRedoState();
+        if (boardsData.length > 0) {
+          const firstBoard = boardsData[0];
+          await loadBoardData(firstBoard._id);
         }
       } catch (err) {
-        console.error('Failed to load initial whiteboard:', err);
+        console.error('Failed to initialize boards:', err);
       } finally {
         if (isMounted) {
-          isInitialLoadRef.current = false;
           setIsLoading(false);
-          setSaveState('idle');
         }
       }
     };
 
-    loadInitialData();
+    initBoards();
 
     // Resize observer
     const resizeObserver = new ResizeObserver((entries) => {
@@ -289,10 +360,14 @@ export default function FabricCanvas() {
       isMounted = false;
       resizeObserver.disconnect();
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-      canvas.dispose();
+      try {
+        canvas.dispose();
+      } catch {
+        // Safe unmount
+      }
       fabricRef.current = null;
     };
-  }, []);
+  }, [loadBoardData]);
 
   // Theme change background sync
   useEffect(() => {
@@ -305,7 +380,6 @@ export default function FabricCanvas() {
   // Spacebar and keyboard shortcut handlers
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if user is typing in an editable text box
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       const activeObj = fabricRef.current?.getActiveObject();
       if (activeObj && (activeObj as any).isEditing) return;
@@ -317,24 +391,20 @@ export default function FabricCanvas() {
         }
       }
 
-      // Delete selected
       if (e.key === 'Delete' || e.key === 'Backspace') {
         deleteSelected();
       }
 
-      // Duplicate (Ctrl+D)
       if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
         e.preventDefault();
         duplicateSelected();
       }
 
-      // Undo (Ctrl+Z)
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
         handleUndo();
       }
 
-      // Redo (Ctrl+Y or Ctrl+Shift+Z)
       if (((e.ctrlKey || e.metaKey) && e.key === 'y') || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z')) {
         e.preventDefault();
         handleRedo();
@@ -387,7 +457,6 @@ export default function FabricCanvas() {
       return;
     }
 
-    // Center coordinates in current viewport
     const vpt = canvas.viewportTransform;
     const zoom = canvas.getZoom();
     const centerX = (-vpt[4] + canvas.getWidth() / 2) / zoom;
@@ -444,7 +513,7 @@ export default function FabricCanvas() {
         top: centerY - 90,
         width: 180,
         height: 180,
-        fill: '#fef08a', // vibrant brutalist sticky yellow
+        fill: '#fef08a',
         stroke: '#000000',
         strokeWidth: 3,
         shadow: new Shadow({ color: '#000000', blur: 0, offsetX: 6, offsetY: 6 }),
@@ -583,7 +652,7 @@ export default function FabricCanvas() {
     });
 
     const link = document.createElement('a');
-    link.download = `whiteboard-${Date.now()}.png`;
+    link.download = `${activeBoardTitle.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.png`;
     link.href = dataURL;
     link.click();
   };
@@ -597,7 +666,7 @@ export default function FabricCanvas() {
     const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.download = `whiteboard-${Date.now()}.svg`;
+    link.download = `${activeBoardTitle.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.svg`;
     link.href = url;
     link.click();
     URL.revokeObjectURL(url);
@@ -606,13 +675,18 @@ export default function FabricCanvas() {
   // Force Save Now
   const handleForceSave = async () => {
     const canvas = fabricRef.current;
-    if (!canvas) return;
+    if (!canvas || !activeBoardId) return;
 
     try {
       setSaveState('saving');
       const json = canvas.toJSON();
-      await updateWhiteboard(json);
+      await updateBoard(activeBoardId, json, activeBoardTitle);
       setSaveState('saved');
+
+      // Update board list timestamp
+      setBoards((prev) =>
+        prev.map((b) => (b._id === activeBoardId ? { ...b, updatedAt: new Date().toISOString() } : b))
+      );
     } catch (err) {
       console.error('Manual save failed:', err);
       setSaveState('error');
@@ -622,7 +696,7 @@ export default function FabricCanvas() {
   // Clear Canvas
   const handleClearCanvas = async () => {
     const canvas = fabricRef.current;
-    if (!canvas) return;
+    if (!canvas || !activeBoardId) return;
 
     try {
       setSaveState('saving');
@@ -631,7 +705,7 @@ export default function FabricCanvas() {
       canvas.backgroundColor = bgColor;
       canvas.requestRenderAll();
 
-      await clearWhiteboard();
+      await updateBoard(activeBoardId, { version: '7.4.0', objects: [] });
       
       const emptyJson = JSON.stringify(canvas.toJSON());
       historyRef.current = [emptyJson];
@@ -643,6 +717,112 @@ export default function FabricCanvas() {
     } catch (err) {
       console.error('Clear canvas failed:', err);
       setSaveState('error');
+    }
+  };
+
+  // Rename Current Active Board
+  const handleSaveTitle = async () => {
+    if (!activeBoardId) return;
+    const finalTitle = titleInput.trim() || 'Untitled Board';
+    setActiveBoardTitle(finalTitle);
+    setIsEditingTitle(false);
+
+    try {
+      await updateBoard(activeBoardId, undefined, finalTitle);
+      setBoards((prev) =>
+        prev.map((b) => (b._id === activeBoardId ? { ...b, title: finalTitle } : b))
+      );
+    } catch (err) {
+      console.error('Failed to update board title:', err);
+    }
+  };
+
+  // Create New Board Action
+  const handleCreateBoard = async () => {
+    const title = newBoardName.trim() || 'Untitled Board';
+    try {
+      setIsLoading(true);
+      // Flush any pending auto-save on current board
+      if (saveTimeoutRef.current && fabricRef.current && activeBoardId) {
+        clearTimeout(saveTimeoutRef.current);
+        const json = fabricRef.current.toJSON();
+        await updateBoard(activeBoardId, json);
+      }
+
+      const newBoard = await createBoard(title);
+      setBoards((prev) => [newBoard, ...prev]);
+      setNewBoardName('');
+      setIsCreatingNew(false);
+      setIsDrawerOpen(false);
+      await loadBoardData(newBoard._id);
+    } catch (err) {
+      console.error('Failed to create new board:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Switch to another board
+  const handleSwitchBoard = async (targetId: string) => {
+    if (targetId === activeBoardId) {
+      setIsDrawerOpen(false);
+      return;
+    }
+
+    try {
+      // Flush any pending changes to current board first
+      if (saveTimeoutRef.current && fabricRef.current && activeBoardId) {
+        clearTimeout(saveTimeoutRef.current);
+        const json = fabricRef.current.toJSON();
+        await updateBoard(activeBoardId, json);
+      }
+
+      setIsDrawerOpen(false);
+      await loadBoardData(targetId);
+    } catch (err) {
+      console.error('Failed to switch board:', err);
+    }
+  };
+
+  // Rename a board in the drawer
+  const handleSaveCardTitle = async (boardId: string) => {
+    const finalTitle = editingCardTitle.trim() || 'Untitled Board';
+    try {
+      await updateBoard(boardId, undefined, finalTitle);
+      setBoards((prev) =>
+        prev.map((b) => (b._id === boardId ? { ...b, title: finalTitle } : b))
+      );
+      if (boardId === activeBoardId) {
+        setActiveBoardTitle(finalTitle);
+        setTitleInput(finalTitle);
+      }
+      setEditingCardId(null);
+    } catch (err) {
+      console.error('Failed to rename board:', err);
+    }
+  };
+
+  // Delete a board
+  const handleDeleteBoard = async (boardId: string) => {
+    if (!confirm('Are you sure you want to permanently delete this whiteboard?')) return;
+
+    try {
+      await deleteBoard(boardId);
+      const remaining = boards.filter((b) => b._id !== boardId);
+      setBoards(remaining);
+
+      // If we deleted the active board, switch to the next available or create a new one
+      if (boardId === activeBoardId) {
+        if (remaining.length > 0) {
+          await loadBoardData(remaining[0]._id);
+        } else {
+          const freshBoard = await createBoard('My Whiteboard');
+          setBoards([freshBoard]);
+          await loadBoardData(freshBoard._id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete board:', err);
     }
   };
 
@@ -692,14 +872,67 @@ export default function FabricCanvas() {
       className="w-full h-full flex flex-col select-none overflow-hidden relative"
     >
       {/* Brutalist Top Control Header */}
-      <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-black border-b-4 border-black dark:border-white z-20 shrink-0">
+      <header className="flex flex-wrap items-center justify-between gap-2.5 px-4 py-2 bg-white dark:bg-black border-b-4 border-black dark:border-white z-20 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-black dark:bg-white" />
-            <h2 className="font-black tracking-wider uppercase text-sm text-black dark:text-white font-mono">
-              BRUTALIST CANVAS
-            </h2>
-          </div>
+          {/* Drawer Button for All Boards */}
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 border-2 border-black dark:border-white bg-amber-400 hover:bg-amber-300 text-black font-black font-mono text-xs uppercase shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+            title="Open Saved Whiteboards Drawer"
+          >
+            <FolderOpen className="w-4 h-4" />
+            <span>MY BOARDS ({boards.length})</span>
+          </button>
+
+          {/* Quick Create Board Button */}
+          <button
+            onClick={() => {
+              setIsDrawerOpen(true);
+              setIsCreatingNew(true);
+            }}
+            className="p-1.5 border-2 border-black dark:border-white bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-black dark:text-white shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff] active:translate-x-0.5 active:translate-y-0.5"
+            title="Create New Board"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+
+          <div className="w-0.5 h-6 bg-black dark:border-white hidden sm:block mx-1" />
+
+          {/* Inline Editable Board Title */}
+          {isEditingTitle ? (
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                value={titleInput}
+                onChange={(e) => setTitleInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle()}
+                className="px-2 py-0.5 border-2 border-black dark:border-white bg-white dark:bg-neutral-900 font-mono font-black text-xs uppercase text-black dark:text-white focus:outline-none"
+                autoFocus
+              />
+              <button
+                onClick={handleSaveTitle}
+                className="p-1 border-2 border-black bg-emerald-400 hover:bg-emerald-300 text-black"
+                title="Save Title"
+              >
+                <Check className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div
+              onClick={() => {
+                setTitleInput(activeBoardTitle);
+                setIsEditingTitle(true);
+              }}
+              className="flex items-center gap-1.5 cursor-pointer group px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-transparent hover:border-black dark:hover:border-white transition-all"
+              title="Click to Rename Board"
+            >
+              <h2 className="font-black tracking-wider uppercase text-xs sm:text-sm text-black dark:text-white font-mono truncate max-w-[180px] sm:max-w-[280px]">
+                {activeBoardTitle}
+              </h2>
+              <Edit2 className="w-3 h-3 text-neutral-400 group-hover:text-black dark:group-hover:text-white" />
+            </div>
+          )}
+
           {getStatusBadge()}
         </div>
 
@@ -775,7 +1008,7 @@ export default function FabricCanvas() {
           <button
             onClick={handleExportPNG}
             title="Export PNG Image"
-            className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-black dark:border-white bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:translate-x-0.5 active:translate-y-0.5 text-black dark:text-white font-black font-mono text-xs uppercase shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff]"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 border-2 border-black dark:border-white bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:translate-x-0.5 active:translate-y-0.5 text-black dark:text-white font-black font-mono text-xs uppercase shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff]"
           >
             <Download className="w-3.5 h-3.5" />
             PNG
@@ -785,7 +1018,7 @@ export default function FabricCanvas() {
           <button
             onClick={handleExportSVG}
             title="Export SVG Vector"
-            className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-black dark:border-white bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:translate-x-0.5 active:translate-y-0.5 text-black dark:text-white font-black font-mono text-xs uppercase shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff]"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 border-2 border-black dark:border-white bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:translate-x-0.5 active:translate-y-0.5 text-black dark:text-white font-black font-mono text-xs uppercase shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff]"
           >
             <Download className="w-3.5 h-3.5" />
             SVG
@@ -798,7 +1031,7 @@ export default function FabricCanvas() {
                 onClick={handleClearCanvas}
                 className="px-2.5 py-1.5 border-2 border-black bg-red-600 hover:bg-red-500 text-white font-black font-mono text-xs uppercase"
               >
-                Confirm Clear
+                Confirm
               </button>
               <button
                 onClick={() => setIsConfirmingClear(false)}
@@ -969,8 +1202,8 @@ export default function FabricCanvas() {
           {/* Shortcut Helper */}
           <div className="mt-1 pt-1 border-t border-neutral-300 dark:border-neutral-700">
             <p className="font-mono text-[8px] uppercase text-neutral-500 dark:text-neutral-400 leading-tight">
-              Hold Space to Pan<br />
-              Wheel to Zoom
+              Space: Pan<br />
+              Wheel: Zoom
             </p>
           </div>
         </aside>
@@ -980,17 +1213,181 @@ export default function FabricCanvas() {
           ref={containerRef}
           className="w-full h-full relative overflow-hidden bg-neutral-50 dark:bg-neutral-950"
         >
-          {isLoading && (
-            <div className="absolute inset-0 z-40 bg-white/90 dark:bg-black/90 flex flex-col items-center justify-center">
-              <div className="w-12 h-12 border-4 border-black dark:border-white border-t-transparent animate-spin mb-4" />
-              <span className="font-mono font-black uppercase tracking-widest text-xs text-black dark:text-white">
-                INITIALIZING CANVAS...
-              </span>
-            </div>
-          )}
-          <canvas ref={canvasElRef} className="w-full h-full block" />
+          {/* Isolated Canvas Container: Fabric mutates only inside this node */}
+          <div className="w-full h-full">
+            <canvas ref={canvasElRef} className="w-full h-full block" />
+          </div>
+
+          {/* Persistent Loading Overlay: toggled with CSS opacity to prevent React DOM reconciliation conflicts */}
+          <div
+            className={`absolute inset-0 z-40 bg-white/90 dark:bg-black/90 flex flex-col items-center justify-center transition-opacity duration-200 ${
+              isLoading ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            }`}
+          >
+            <div className="w-12 h-12 border-4 border-black dark:border-white border-t-transparent animate-spin mb-4" />
+            <span className="font-mono font-black uppercase tracking-widest text-xs text-black dark:text-white">
+              LOADING WHITEBOARD...
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* "MY BOARDS" BRUTALIST SLIDE-OVER DRAWER */}
+      {isDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
+          <div className="w-full sm:w-[420px] h-full bg-white dark:bg-black border-l-4 border-black dark:border-white flex flex-col shadow-[-8px_0px_0px_#000000] dark:shadow-[-8px_0px_0px_#ffffff] z-50">
+            {/* Drawer Header */}
+            <div className="p-4 border-b-4 border-black dark:border-white flex items-center justify-between bg-neutral-100 dark:bg-neutral-900">
+              <div className="flex items-center gap-2">
+                <FolderOpen className="w-5 h-5 text-black dark:text-white" />
+                <h3 className="font-mono font-black uppercase text-sm text-black dark:text-white">
+                  SAVED WHITEBOARDS ({boards.length})
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                  setIsCreatingNew(false);
+                }}
+                className="p-1.5 border-2 border-black dark:border-white bg-white dark:bg-black hover:bg-neutral-200 text-black dark:text-white"
+                title="Close Drawer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Create Board Section */}
+            <div className="p-4 border-b-2 border-black dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
+              {isCreatingNew ? (
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="text"
+                    placeholder="ENTER BOARD TITLE..."
+                    value={newBoardName}
+                    onChange={(e) => setNewBoardName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleCreateBoard()}
+                    className="w-full px-3 py-2 border-2 border-black dark:border-white bg-white dark:bg-neutral-900 font-mono font-bold text-xs uppercase text-black dark:text-white focus:outline-none"
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCreateBoard}
+                      className="flex-1 py-1.5 border-2 border-black bg-emerald-400 hover:bg-emerald-300 font-mono font-black text-xs uppercase text-black shadow-[2px_2px_0px_#000000]"
+                    >
+                      CREATE BOARD
+                    </button>
+                    <button
+                      onClick={() => setIsCreatingNew(false)}
+                      className="px-3 py-1.5 border-2 border-black bg-neutral-200 font-mono font-bold text-xs uppercase text-black"
+                    >
+                      CANCEL
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsCreatingNew(true)}
+                  className="w-full py-2.5 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff] active:translate-x-0.5 active:translate-y-0.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  CREATE NEW BOARD
+                </button>
+              )}
+            </div>
+
+            {/* Boards List */}
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+              {boards.map((b) => {
+                const isActive = b._id === activeBoardId;
+                const isEditingThis = editingCardId === b._id;
+
+                return (
+                  <div
+                    key={b._id}
+                    className={`p-3 border-4 border-black dark:border-white transition-all flex flex-col gap-2 ${
+                      isActive
+                        ? 'bg-amber-100 dark:bg-neutral-900 shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_#ffffff]'
+                        : 'bg-white dark:bg-neutral-950 hover:bg-neutral-50 dark:hover:bg-neutral-900 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_#ffffff]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      {isEditingThis ? (
+                        <div className="flex items-center gap-1 flex-1 mr-2">
+                          <input
+                            type="text"
+                            value={editingCardTitle}
+                            onChange={(e) => setEditingCardTitle(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSaveCardTitle(b._id)}
+                            className="flex-1 px-2 py-0.5 border-2 border-black dark:border-white font-mono font-bold text-xs uppercase bg-white dark:bg-black text-black dark:text-white focus:outline-none"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => handleSaveCardTitle(b._id)}
+                            className="p-1 border border-black bg-emerald-400 text-black"
+                            title="Save"
+                          >
+                            <Check className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 flex-1 mr-2 overflow-hidden">
+                          <span
+                            className="font-mono font-black text-xs uppercase truncate text-black dark:text-white"
+                            title={b.title}
+                          >
+                            {b.title}
+                          </span>
+                          <button
+                            onClick={() => {
+                              setEditingCardId(b._id);
+                              setEditingCardTitle(b.title);
+                            }}
+                            className="text-neutral-400 hover:text-black dark:hover:text-white"
+                            title="Rename"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+
+                      {isActive && (
+                        <span className="px-2 py-0.5 border-2 border-black bg-emerald-400 text-[9px] font-mono font-black uppercase text-black">
+                          OPEN
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                      <div className="flex items-center gap-1 text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+                        <Calendar className="w-3 h-3" />
+                        <span>{new Date(b.updatedAt).toLocaleDateString()}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        {!isActive && (
+                          <button
+                            onClick={() => handleSwitchBoard(b._id)}
+                            className="px-2.5 py-1 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black font-mono font-black text-[10px] uppercase shadow-[1px_1px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5"
+                          >
+                            OPEN
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteBoard(b._id)}
+                          className="p-1 border-2 border-black dark:border-white bg-rose-200 dark:bg-rose-950 hover:bg-rose-300 text-rose-900 dark:text-rose-200"
+                          title="Delete Board"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
