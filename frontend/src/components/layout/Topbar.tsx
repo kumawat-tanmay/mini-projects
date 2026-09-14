@@ -50,6 +50,7 @@ export default function Topbar({ toggleSidebar }: { toggleSidebar?: () => void }
     if (pathname === "/asset-vault") return "Asset Vault";
     if (pathname === "/focus") return "Focus Soundscapes";
     if (pathname === "/whiteboard") return "Architecture Whiteboard";
+    if (pathname === "/linkedin") return "LinkedIn Post Automator";
     return "Productivity Hub";
   };
 

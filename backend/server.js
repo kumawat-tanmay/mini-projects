@@ -19,6 +19,7 @@ const assetVaultRoutes = require('./src/modules/asset-vault/routes');
 const dashboardRoutes = require('./src/modules/dashboard/routes');
 const focusRoutes = require('./src/modules/focus/routes');
 const whiteboardRoutes = require('./src/modules/whiteboard/routes');
+const linkedinRoutes = require('./src/modules/linkedin/routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -92,6 +93,7 @@ app.use('/api/assets', assetVaultRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/focus', focusRoutes);
 app.use('/api/whiteboard', whiteboardRoutes);
+app.use('/api/linkedin', linkedinRoutes);
 
 // Root route to prevent 'Cannot GET /'
 app.get('/', (req, res) => {

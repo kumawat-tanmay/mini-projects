@@ -13,7 +13,8 @@ import {
   Timer,
   Database,
   Volume2,
-  PenTool
+  PenTool,
+  Linkedin
 } from "lucide-react";
 
 interface SidebarProps {
@@ -32,6 +33,7 @@ export default function Sidebar({ isOpen = true, onNavClick }: SidebarProps) {
     { name: "Asset Vault", href: "/asset-vault", icon: Database },
     { name: "Focus Mixer", href: "/focus", icon: Volume2 },
     { name: "Whiteboard", href: "/whiteboard", icon: PenTool },
+    { name: "LinkedIn Post", href: "/linkedin", icon: Linkedin },
   ];
 
   return (
